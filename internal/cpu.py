@@ -1,35 +1,71 @@
 from collections import deque
+from internal import pcb
 
 class CPU:
 
     using_CPU = None
 
-    def __init__(self, process):
+    def __init__(self):
         dummy = 0
         self.lvl_0_q = deque()
         self.lvl_1_q = deque()
         self.lvl_2_q = deque()
 
     def scheduler(self, process):
-        self.level_0(process)
-
-    def level_0(self, process):
         #add process to queue and then refresh
-        lvl_0_q.append(process)
+        self.lvl_0_q.append(process)
         self.refresh_lvl_0()
-
-    #Todo: will this return an error if queue is empty?
+        
     def refresh_lvl_0(self):
-        if self.using_CPU == None:
-            self.using_CPU = lvl_0_q.popleft()
+        #if CPU is idle and there are no processes queued on level 0
+        if self.using_CPU == None and len(self.lvl_0_q) == 0:
+            self.refresh_lvl_1()
+
+        #if CPU is idle let in a process from level 0
+        elif self.using_CPU == None:
+            self.using_CPU = self.lvl_0_q.popleft()
+
+        #if level 0 has a queue and CPU is in use by a lower priority process: preempt
+        elif self.using_CPU.level != 0 and len(self.lvl_0_q) != 0:
+            self.priority_preempt()
+            self.using_CPU = self.lvl_0_q.popleft()
 
     def refresh_lvl_1(self):
+        #if CPU is idle and there are no processes queued on level 0, let in a level 1 process
         if self.using_CPU == None and len(lvl_0_q) == 0:
             self.using_CPU = lvl_1_q.popleft()
+            #if there are no processes queued on level 0, let in a level 1 process
+            if len(self.lvl_1_q) == 0:
+                self.refresh_lvl_2()
 
     def refresh_lvl_2(self):
+        #if CPU is idle and there are no higher priority processes, let in a level 2 process
         if self.using_CPU == None and len(lvl_0_q) == 0 and len(lvl_1_q) == 0:
             self.using_CPU = lvl_2_q.popleft()
+
+    def time_quantum(self):
+        self.using_CPU.time_quantum +=1
+        if self.using_CPU.level == 0:
+            self.preempt()
+        if self.using_CPU.level == 1 and self.using_CPU.time_quantum == 2:
+            self.preempt()
+
+    #preempt if process has exceeded time quantums allowed on for its level
+    def preempt(self):
+        if self.using_CPU.level == 0:
+            lvl_1_q.append(process)
+        else:
+            lvl_2_q.append(process)
+        self.using_CPU = None
+        self.refresh_lvl_0()
+
+    #preempt if a higher level process arrives
+    def priority_preempt(self):
+        if self.using_CPU.level == 1:
+            lvl_1_q.appendleft(self.using_CPU)
+        if self.using_CPU.level == 2:
+            lvl_2_q.appendleft(self.using_CPU)
+        self.using_CPU = None
 
     #terminate process in CPU
     def terminate(self):
@@ -39,7 +75,10 @@ class CPU:
     #"Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
     def show_cpu(self):
         print("Using CPU:")
-        print(self.using_CPU.pid)
+        if self.using_CPU != None:
+            print(self.using_CPU.pid)
+        else:
+            print("[empty]")
 
         print("In ready-queue: ")
 
