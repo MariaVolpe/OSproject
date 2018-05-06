@@ -13,7 +13,7 @@ class CPU:
         self.lvl_2_q = deque()
         self.frame_count = frame_count
         self.disks = []
-        self.memory = memory.Mem()
+        self.memory = memory.Mem(frame_count)
 
         for i in range(disk_count):
             disk = hdd.HDD()

@@ -21,10 +21,18 @@ class Mem:
             pid_list.append(-1)
             timestamp_list.append(0)
 
-
     #add the information to frame with smallest timestamp (the least recently used)
     #if any memory is unused it will be placed in the first unused frame because 0 will be least recently used
     def add_to_memory(self, page, pid):
+        #if page already belongs to process
+        index = -1
+        if pid in self.table["PID"]:
+            for i in range(len(self.table["PID"])):
+                if self.table["PID"][i] == pid:
+                    index = i
+            if self.table["Page"][index] == page:
+                self.update(index)
+
         #find frame of smallest timestamp (or first unused frame)
         min_timestamp = float("inf")
         for i in range(len(self.table["Timestamp"])):
@@ -38,6 +46,10 @@ class Mem:
         self.table["Page Number"][min_timestamp] = page
         self.table["PID"][min_timestamp] = pid
 
+    #if page already belongs to process, update timestamp
+    def update(self, index):
+        self.table["Timestamp"][index] = self.timestamp
+        self.timestamp += 1
 
     #reclaim memory for a terminated process
     def reclaim_memory(self, pid):
@@ -47,7 +59,6 @@ class Mem:
                 self.table["Timestamp"][i] = 0
                 self.table["Page Number"][i] = -1
                 self.table["PID"][i] = -1
-
 
     # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.
     # The enumeration of pages and frames starts from 0.""

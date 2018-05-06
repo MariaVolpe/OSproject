@@ -18,7 +18,7 @@ class HDD:
         else:
             self.io_queue.append(process)
 
-    #stop process from using HDD and then return the process
+    #stop process from using HDD, refresh I/O queue and then return the process
     def terminate_io(self):
         process = self.using_HDD
         process.file_name = ""
