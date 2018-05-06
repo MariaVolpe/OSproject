@@ -30,21 +30,22 @@ class Mem:
             for i in range(len(self.table["PID"])):
                 if self.table["PID"][i] == pid:
                     index = i
-            if self.table["Page"][index] == page:
+            if self.table["Page Number"][index] == page:
                 self.update(index)
 
         #find frame of smallest timestamp (or first unused frame)
         min_timestamp = float("inf")
         for i in range(len(self.table["Timestamp"])):
             if self.table["Timestamp"][i] < min_timestamp:
-                min_timestamp = i
+                min_timestamp = self.table["Timestamp"][i]
+                min_index = i
 
         #add information to that frame
-        self.table["Timestamp"][min_timestamp] = self.timestamp
+        self.table["Timestamp"][min_index] = self.timestamp
         #increase timestamp
         self.timestamp += 1
-        self.table["Page Number"][min_timestamp] = page
-        self.table["PID"][min_timestamp] = pid
+        self.table["Page Number"][min_index] = page
+        self.table["PID"][min_index] = pid
 
     #if page already belongs to process, update timestamp
     def update(self, index):
@@ -65,4 +66,4 @@ class Mem:
     def show_memory(self):
         for i in range(len(self.table["Frames"])):
             if self.table["PID"][i] != -1:
-                print ("Frame: ", self.table["Frames"][i], "\t", "Page: ", self.table["Pages"][i], "\t", "PID: ", self.table["PID"][i])
+                print ("Frame: ", self.table["Frames"][i], "\t", "Page: ", self.table["Page Number"][i], "\t", "PID: ", self.table["PID"][i])
