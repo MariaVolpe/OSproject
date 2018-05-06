@@ -1,16 +1,19 @@
 from collections import deque
 from internal import pcb
 from internal import hdd
+from internal import memory
 
 class CPU:
 
     using_CPU = None
 
-    def __init__(self, disk_count):
+    def __init__(self, disk_count, frame_count):
         self.lvl_0_q = deque()
         self.lvl_1_q = deque()
         self.lvl_2_q = deque()
+        self.frame_count = frame_count
         self.disks = []
+        self.memory = memory.Mem()
 
         for i in range(disk_count):
             process = pcb.PCB()
@@ -76,8 +79,11 @@ class CPU:
 
     #terminate process in CPU
     def terminate(self):
+        #reclaim memory
+        if self.using_CPU != None:
+            self.memory.reclaim_memory(self.using_CPU.pid)
+            
         self.using_CPU = None
-        #todo: RECLAIM MEMORY
 
     #request I/O for specified disk
     def request_io(self, num, file_name):
@@ -136,13 +142,11 @@ class CPU:
         for i in range(HDD.hdd_count):
             print( "Hard Disk {}:".format(i) )
             print( "Using disk:")
-            print(i.using_HDD.pid)
-            print(i.using_HDD.file_name)
+            print(i.using_HDD.pid, " : ", i.using_HDD.file_name)
             print( "In I/O queue:")
             for j in i.io_queue:
                 print(j.pid)
                 print(j.file_name)
-
 
     #todo
     # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.

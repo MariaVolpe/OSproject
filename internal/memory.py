@@ -1,4 +1,4 @@
-class memory:
+class Mem:
 
     def __init__(self, frame_count):
         self.frame_count = frame_count
@@ -25,14 +25,11 @@ class memory:
     #add the information to frame with smallest timestamp (the least recently used)
     #if any memory is unused it will be placed in the first unused frame because 0 will be least recently used
     def add_to_memory(self, page, pid):
-        
-
         #find frame of smallest timestamp (or first unused frame)
         min_timestamp = float("inf")
         for i in range(len(self.table["Timestamp"])):
             if self.table["Timestamp"][i] < min_timestamp:
                 min_timestamp = i
-
 
         #add information to that frame
         self.table["Timestamp"][min_timestamp] = self.timestamp
@@ -40,3 +37,13 @@ class memory:
         self.timestamp += 1
         self.table["Page Number"][min_timestamp] = page
         self.table["PID"][min_timestamp] = pid
+
+
+    #reclaim memory for a terminated process
+    def reclaim_memory(self, pid):
+        #check for pid in list of pids and reset values associated with it
+        for i in range(len(self.table["PID"])):
+            if self.table["PID"][i] == pid:
+                self.table["Timestamp"][i] = 0
+                self.table["Page Number"][i] = -1
+                self.table["PID"][i] = -1
