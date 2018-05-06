@@ -1,18 +1,24 @@
 from collections import deque
 from internal import pcb
+from internal import hdd
 
 class CPU:
 
     using_CPU = None
 
-    def __init__(self):
-        dummy = 0
+    def __init__(self, disk_count):
         self.lvl_0_q = deque()
         self.lvl_1_q = deque()
         self.lvl_2_q = deque()
+        self.disks = []
 
-    def scheduler(self, process):
+        for i in range(disk_count):
+            process = pcb.PCB()
+            self.disks.append(process)
+
+    def scheduler(self):
         #add process to queue and then refresh
+        process = pcb.PCB()
         self.lvl_0_q.append(process)
         self.refresh_lvl_0()
         
@@ -43,6 +49,7 @@ class CPU:
         if self.using_CPU == None and len(lvl_0_q) == 0 and len(lvl_1_q) == 0:
             self.using_CPU = lvl_2_q.popleft()
 
+    #increase time quantum for process using CPU
     def time_quantum(self):
         self.using_CPU.time_quantum +=1
         if self.using_CPU.level == 0:
@@ -72,13 +79,31 @@ class CPU:
         self.using_CPU = None
         #todo: RECLAIM MEMORY
 
+    #request I/O for specified disk
+    def request_io(self, num, file_name):
+        self.disks[num].request_io(file_name, self.using_CPU)
+        #remove process from CPU
+        self.using_CPU = None
+
+    #terminate I/O for specified disk
+    def terminate_io(self, num):
+        process = self.disks[num].terminate_io()
+        #process returned from hdd.terminate_io needs to be put back in ready-queue
+        if self.using_CPU.level == 0:
+            lvl_0_q.append(process)
+        elif self.using_CPU.level == 1:
+            lvl_1_q.append(process)
+        else:
+            lvl_2_q.append(process)
+        self.refresh_lvl_0()
+
     #"Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
     def show_cpu(self):
         print("Using CPU:")
         if self.using_CPU != None:
             print(self.using_CPU.pid)
         else:
-            print("[empty]")
+            print("[idle]")
 
         print("In ready-queue: ")
 
@@ -104,12 +129,19 @@ class CPU:
                 print(i.pid)
 
 
-    #todo
     # "Shows what processes are currently using the hard disks and what processes are waiting to use them.
     # For each busy hard disk show the process that uses it and show its I/O-queue.
     # Make sure to display the filenames (from the d command) for each process. The enumeration of hard disks starts from 0."
     def show_disk(self):
-        dummy = 0
+        for i in range(HDD.hdd_count):
+            print( "Hard Disk {}:".format(i) )
+            print( "Using disk:")
+            print(i.using_HDD.pid)
+            print(i.using_HDD.file_name)
+            print( "In I/O queue:")
+            for j in i.io_queue:
+                print(j.pid)
+                print(j.file_name)
 
 
     #todo

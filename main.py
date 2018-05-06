@@ -5,26 +5,29 @@
 #
 ##############################
 
-#from internal import 
+from internal import cpu
 
 def evaluate(s, obj):
 
     d = {"A" : new_process, "Q" : time_quantum, "t" : terminate, "S r" : show_cpu, "S i" : show_disk, "S m" : show_memory}
 
     if s in d:
-        d[s]()
+        d[s](obj)
 
     else:
+        arr = s.split()
+
         #d number file_name
-        if "d" in s:
-            dummy = 0
+        if arr[0] == "d":
+            
+            obj.request_io(arr[1], arr[2])
 
         #D number
-        elif "D" in s:
-            dummy = 0
+        elif arr[0] == "D":
+            obj.terminate_io(arr[1])
 
         #m address
-        elif "m" in s:
+        elif arr[0] == "D":
             dummy = 0
 
         #error
@@ -33,11 +36,10 @@ def evaluate(s, obj):
 
 
 def new_process(obj):
-    process = internal.PCB()
-    obj.scheduler(process)
+    obj.scheduler()
 
 def time_quantum(obj):
-    dummy = var
+    obj.time_quantum()
 
 def terminate(obj):
     obj.terminate()
@@ -56,9 +58,11 @@ def main():
     RAM = input("How much RAM?")
     page = input("Size of page?")
 
-    #object of class
-    obj =
+    #todo : calculate
+    disk_count = 2
 
+    #object of class
+    obj = cpu.CPU(disk_count)
 
     while(True):
         s = input()
@@ -66,5 +70,5 @@ def main():
 
         evaluate(s, obj)
 
-if __name__ == "__main__"
+if __name__ == "__main__":
     main()
