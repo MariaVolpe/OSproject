@@ -7,7 +7,7 @@
 
 from internal import cpu
 
-def evaluate(s, obj):
+def evaluate(s, obj, page_size):
 
     d = {"A" : new_process, "Q" : time_quantum, "t" : terminate, "S r" : show_cpu, "S i" : show_disk, "S m" : show_memory}
 
@@ -19,7 +19,6 @@ def evaluate(s, obj):
 
         #d number file_name
         if arr[0] == "d":
-            
             obj.request_io(arr[1], arr[2])
 
         #D number
@@ -27,8 +26,10 @@ def evaluate(s, obj):
             obj.terminate_io(arr[1])
 
         #m address
-        elif arr[0] == "D":
-            dummy = 0
+        elif arr[0] == "m":
+            #page number = address/page size
+            page = int(arr[1]) / int(page_size)
+            obj.access_memory(page)
 
         #error
         else:
@@ -56,19 +57,22 @@ def show_memory(obj):
 
 def main():
     RAM = input("How much RAM?")
-    page = input("Size of page?")
+    page_size = input("Size of page?")
+
+    #frame number = ram/page size
+    frame_count = int(RAM) / int(page_size)
 
     #todo : calculate
     disk_count = 2
 
     #object of class
-    obj = cpu.CPU(disk_count)
+    obj = cpu.CPU(disk_count, frame_count)
 
     while(True):
         s = input()
         s.strip()
 
-        evaluate(s, obj)
+        evaluate(s, obj, page_size)
 
 if __name__ == "__main__":
     main()

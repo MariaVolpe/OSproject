@@ -16,12 +16,14 @@ class CPU:
         self.memory = memory.Mem()
 
         for i in range(disk_count):
-            process = pcb.PCB()
-            self.disks.append(process)
+            disk = hdd.HDD()
+            self.disks.append(disk)
 
     def scheduler(self):
         #add process to queue and then refresh
         process = pcb.PCB()
+        #allocate memory for process at page 0
+        self.memory.add_to_memory(0, process.pid)
         self.lvl_0_q.append(process)
         self.refresh_lvl_0()
         
@@ -61,7 +63,10 @@ class CPU:
             self.preempt()
 
     #preempt if process has exceeded time quantums allowed on for its level
+    #add process to queue one level below its current priority level
     def preempt(self):
+        #reset time quantums
+        self.using_CPU.time_quantum = 0
         if self.using_CPU.level == 0:
             lvl_1_q.append(process)
         else:
@@ -70,6 +75,7 @@ class CPU:
         self.refresh_lvl_0()
 
     #preempt if a higher level process arrives
+    #add process to front of it's priority level queue
     def priority_preempt(self):
         if self.using_CPU.level == 1:
             lvl_1_q.appendleft(self.using_CPU)
@@ -82,7 +88,7 @@ class CPU:
         #reclaim memory
         if self.using_CPU != None:
             self.memory.reclaim_memory(self.using_CPU.pid)
-            
+
         self.using_CPU = None
 
     #request I/O for specified disk
@@ -102,6 +108,10 @@ class CPU:
         else:
             lvl_2_q.append(process)
         self.refresh_lvl_0()
+
+
+    def access_memory(self, page):
+        self.memory.add_to_memory(page, self.using_CPU.pid)
 
     #"Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
     def show_cpu(self):
@@ -148,8 +158,7 @@ class CPU:
                 print(j.pid)
                 print(j.file_name)
 
-    #todo
     # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.
     # The enumeration of pages and frames starts from 0.""
     def show_memory(self):
-        dummy = 0
+        self.memory.show_memory()

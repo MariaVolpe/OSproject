@@ -47,3 +47,11 @@ class Mem:
                 self.table["Timestamp"][i] = 0
                 self.table["Page Number"][i] = -1
                 self.table["PID"][i] = -1
+
+
+    # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.
+    # The enumeration of pages and frames starts from 0.""
+    def show_memory(self):
+        for i in range(len(self.table["Frames"])):
+            if self.table["PID"][i] != -1:
+                print ("Frame: ", self.table["Frames"][i], "\t", "Page: ", self.table["Pages"][i], "\t", "PID: ", self.table["PID"][i])
