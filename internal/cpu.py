@@ -13,7 +13,7 @@ class CPU:
         self.lvl_2_q = deque()
         self.frame_count = frame_count
         self.disks = []
-        self.memory = memory.Mem(frame_count)
+        self.memory = memory.Mem(int(frame_count))
 
         for i in range(disk_count):
             disk = hdd.HDD()
@@ -67,9 +67,12 @@ class CPU:
     def preempt(self):
         #reset time quantums
         self.using_CPU.time_quantum = 0
+        process = self.using_CPU
         if self.using_CPU.level == 0:
+            process.level = 1
             lvl_1_q.append(process)
         else:
+            process.level = 2
             lvl_2_q.append(process)
         self.using_CPU = None
         self.refresh_lvl_0()
