@@ -44,7 +44,7 @@ class Mem:
         self.table["Timestamp"][min_index] = self.timestamp
         #increase timestamp
         self.timestamp += 1
-        self.table["Page Number"][min_index] = page
+        self.table["Page Number"][min_index] = int(page)
         self.table["PID"][min_index] = pid
 
     #if page already belongs to process, update timestamp

@@ -1,5 +1,6 @@
 from collections import deque
 
+
 class HDD:
     hdd_count = 0
 
@@ -10,6 +11,8 @@ class HDD:
         #name of file using HDD
         self.file_name = ""
 
+
+    #todo : throw error if no processes are in the ready queue
     def request_io(self, file_name, process):
         process.file_name = file_name
         if self.using_HDD == None:

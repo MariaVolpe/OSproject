@@ -43,16 +43,18 @@ class CPU:
 
     def refresh_lvl_1(self):
         #if CPU is idle and there are no processes queued on level 0, let in a level 1 process
-        if self.using_CPU == None and len(lvl_0_q) == 0:
-            self.using_CPU = lvl_1_q.popleft()
+        if self.using_CPU == None and len(self.lvl_0_q) == 0:
+            if len(self.lvl_1_q) != 0:
+                self.using_CPU = self.lvl_1_q.popleft()
             #if there are no processes queued on level 0, let in a level 1 process
-            if len(self.lvl_1_q) == 0:
+            elif len(self.lvl_1_q) == 0:
                 self.refresh_lvl_2()
 
     def refresh_lvl_2(self):
         #if CPU is idle and there are no higher priority processes, let in a level 2 process
-        if self.using_CPU == None and len(lvl_0_q) == 0 and len(lvl_1_q) == 0:
-            self.using_CPU = lvl_2_q.popleft()
+        if self.using_CPU == None and len(self.lvl_0_q) == 0 and len(self.lvl_1_q) == 0:
+            if len(self.lvl_2_q) != 0:
+                self.using_CPU = self.lvl_2_q.popleft()
 
     #increase time quantum for process using CPU
     def time_quantum(self):
@@ -70,10 +72,10 @@ class CPU:
         process = self.using_CPU
         if self.using_CPU.level == 0:
             process.level = 1
-            lvl_1_q.append(process)
+            self.lvl_1_q.append(process)
         else:
             process.level = 2
-            lvl_2_q.append(process)
+            self.lvl_2_q.append(process)
         self.using_CPU = None
         self.refresh_lvl_0()
 
@@ -81,9 +83,9 @@ class CPU:
     #add process to front of it's priority level queue
     def priority_preempt(self):
         if self.using_CPU.level == 1:
-            lvl_1_q.appendleft(self.using_CPU)
+            self.lvl_1_q.appendleft(self.using_CPU)
         if self.using_CPU.level == 2:
-            lvl_2_q.appendleft(self.using_CPU)
+            self.lvl_2_q.appendleft(self.using_CPU)
         self.using_CPU = None
 
     #terminate process in CPU
@@ -96,20 +98,21 @@ class CPU:
 
     #request I/O for specified disk
     def request_io(self, num, file_name):
-        self.disks[num].request_io(file_name, self.using_CPU)
+        self.disks[int(num)].request_io(file_name, self.using_CPU)
         #remove process from CPU
         self.using_CPU = None
+        self.refresh_lvl_0()
 
     #terminate I/O for specified disk
     def terminate_io(self, num):
-        process = self.disks[num].terminate_io()
+        process = self.disks[int(num)].terminate_io()
         #process returned from hdd.terminate_io needs to be put back in ready-queue
         if self.using_CPU.level == 0:
-            lvl_0_q.append(process)
+            self.lvl_0_q.append(process)
         elif self.using_CPU.level == 1:
             lvl_1_q.append(process)
         else:
-            lvl_2_q.append(process)
+            self.lvl_2_q.append(process)
         self.refresh_lvl_0()
 
 
@@ -152,12 +155,12 @@ class CPU:
     # For each busy hard disk show the process that uses it and show its I/O-queue.
     # Make sure to display the filenames (from the d command) for each process. The enumeration of hard disks starts from 0."
     def show_disk(self):
-        for i in range(HDD.hdd_count):
+        for i in range(self.disks[0].hdd_count):
             print( "Hard Disk {}:".format(i) )
             print( "Using disk:")
-            print(i.using_HDD.pid, " : ", i.using_HDD.file_name)
+            print(self.disks[i].using_HDD.pid, " : ", self.disks[i].using_HDD.file_name)
             print( "In I/O queue:")
-            for j in i.io_queue:
+            for j in self.disks[i].io_queue:
                 print(j.pid)
                 print(j.file_name)
 
