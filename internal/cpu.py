@@ -158,11 +158,16 @@ class CPU:
         for i in range(self.disks[0].hdd_count):
             print( "Hard Disk {}:".format(i) )
             print( "Using disk:")
-            print(self.disks[i].using_HDD.pid, " : ", self.disks[i].using_HDD.file_name)
+            
+            if self.disks[i].using_HDD != None:
+                print(self.disks[i].using_HDD.pid, " : ", self.disks[i].using_HDD.file_name)
+            else:
+                print( "[idle]" )
             print( "In I/O queue:")
             for j in self.disks[i].io_queue:
-                print(j.pid)
-                print(j.file_name)
+                print(j.pid, " : ", j.file_name)
+            if len(self.disks[i].io_queue) == 0:
+                print ("[empty]")
 
     # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.
     # The enumeration of pages and frames starts from 0.""
