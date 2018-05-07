@@ -13,6 +13,7 @@ class CPU:
         self.lvl_2_q = deque()
         self.frame_count = frame_count
         self.disks = []
+        self.disk_count = disk_count
         self.memory = memory.Mem(int(frame_count))
 
         for i in range(disk_count):
@@ -57,7 +58,11 @@ class CPU:
                 self.using_CPU = self.lvl_2_q.popleft()
 
     #increase time quantum for process using CPU
+    #do nothing if CPU is not being used
     def time_quantum(self):
+        if self.using_CPU == None:
+            return
+        
         self.using_CPU.time_quantum +=1
         if self.using_CPU.level == 0:
             self.preempt()
@@ -89,22 +94,37 @@ class CPU:
         self.using_CPU = None
 
     #terminate process in CPU
+    #do nothing if CPU is not being used
     def terminate(self):
-        #reclaim memory
-        if self.using_CPU != None:
-            self.memory.reclaim_memory(self.using_CPU.pid)
+        if self.using_CPU == None:
+            return
 
+        #reclaim memory
+        self.memory.reclaim_memory(self.using_CPU.pid)
         self.using_CPU = None
 
     #request I/O for specified disk
+    #do nothing if no process is using CPU
+    #do nothing if disk requested does not exist
     def request_io(self, num, file_name):
+        if self.using_CPU == None:
+            return
+        elif int(num) >= self.disk_count:
+            return
         self.disks[int(num)].request_io(file_name, self.using_CPU)
         #remove process from CPU
         self.using_CPU = None
         self.refresh_lvl_0()
 
     #terminate I/O for specified disk
+    #do nothing if disk requested does not exist
+    #do nothing if disk requested is not being used by any process
     def terminate_io(self, num):
+        if int(num) >= self.disk_count:
+            return
+        elif self.disks[int(num)].using_HDD == None:
+            return
+
         process = self.disks[int(num)].terminate_io()
         #process returned from hdd.terminate_io needs to be put back in ready-queue
         if self.using_CPU.level == 0:
@@ -116,7 +136,11 @@ class CPU:
         self.refresh_lvl_0()
 
 
+    #add a specified page to memory
+    #do nothing if no process is using CPU
     def access_memory(self, page):
+        if self.using_CPU == None:
+            return
         self.memory.add_to_memory(page, self.using_CPU.pid)
 
     #"Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
@@ -158,7 +182,7 @@ class CPU:
         for i in range(self.disks[0].hdd_count):
             print( "Hard Disk {}:".format(i) )
             print( "Using disk:")
-            
+
             if self.disks[i].using_HDD != None:
                 print(self.disks[i].using_HDD.pid, " : ", self.disks[i].using_HDD.file_name)
             else:

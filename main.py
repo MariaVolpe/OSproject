@@ -9,14 +9,20 @@ from internal import cpu
 
 def evaluate(s, obj, page_size):
 
+    #todo : exit function
+
     d = {"A" : new_process, "Q" : time_quantum, "t" : terminate, "S r" : show_cpu, "S i" : show_disk, "S m" : show_memory}
 
     if s in d:
         d[s](obj)
 
+    #if user accidentally enters empty string, do nothing
+    elif s == "":
+        dummy = 0
     else:
         arr = s.split()
 
+        # todo : throw errors if missing arguments
         #d number file_name
         if arr[0] == "d":
             obj.request_io(arr[1], arr[2])
@@ -39,6 +45,7 @@ def evaluate(s, obj, page_size):
 def new_process(obj):
     obj.scheduler()
 
+#todo : stop if there are no processes
 def time_quantum(obj):
     obj.time_quantum()
 
@@ -51,13 +58,14 @@ def show_cpu(obj):
 def show_disk(obj):
     obj.show_disk()
 
+#todo : if there are no processes, output a message
 def show_memory(obj):
     obj.show_memory()
 
 
 def main():
-    RAM = input("How much RAM?")
-    page_size = input("Size of page?")
+    RAM = input("How much RAM? ")
+    page_size = input("Size of page? ")
 
     #frame number = ram/page size
     frame_count = int(RAM) / int(page_size)

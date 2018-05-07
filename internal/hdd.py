@@ -12,7 +12,6 @@ class HDD:
         self.file_name = ""
 
 
-    #todo : throw error if no processes are in the ready queue
     def request_io(self, file_name, process):
         process.file_name = file_name
         if self.using_HDD == None:
@@ -22,6 +21,7 @@ class HDD:
             self.io_queue.append(process)
 
     #stop process from using HDD, refresh I/O queue and then return the process
+    #only is called from CPU class if there is a process currently using the disk
     def terminate_io(self):
         process = self.using_HDD
         process.file_name = ""
