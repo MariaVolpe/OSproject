@@ -1,6 +1,5 @@
 from collections import deque
 
-
 class HDD:
     hdd_count = 0
 
@@ -10,7 +9,6 @@ class HDD:
         self.using_HDD = None
         #name of file using HDD
         self.file_name = ""
-
 
     def request_io(self, file_name, process):
         process.file_name = file_name

@@ -63,7 +63,16 @@ class Mem:
 
     # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.
     # The enumeration of pages and frames starts from 0.""
+    # todo : print out a message if table is empty
     def show_memory(self):
+        isEmpty = False
+        print ("")
         for i in range(len(self.table["Frames"])):
             if self.table["PID"][i] != -1:
-                print ("Frame: ", self.table["Frames"][i], "\t", "Page: ", self.table["Page Number"][i], "\t", "PID: ", self.table["PID"][i])
+                isEmpty = True
+                print ("Frame: ", self.table["Frames"][i], "\t", "Page: ", self.table["Page Number"][i], "\t", "PID: ", self.table["PID"][i], "\t", "Timestamp: ", self.table["Timestamp"][i])
+
+        if isEmpty == False:
+            print ("No frames in use to show.")
+
+        print ("")

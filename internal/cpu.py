@@ -58,11 +58,11 @@ class CPU:
                 self.using_CPU = self.lvl_2_q.popleft()
 
     #increase time quantum for process using CPU
-    #do nothing if CPU is not being used
     def time_quantum(self):
+        #do nothing if CPU is not being used
         if self.using_CPU == None:
             return
-        
+
         self.using_CPU.time_quantum +=1
         if self.using_CPU.level == 0:
             self.preempt()
@@ -94,39 +94,42 @@ class CPU:
         self.using_CPU = None
 
     #terminate process in CPU
-    #do nothing if CPU is not being used
     def terminate(self):
+        #do nothing if CPU is not being used
         if self.using_CPU == None:
             return
 
         #reclaim memory
         self.memory.reclaim_memory(self.using_CPU.pid)
         self.using_CPU = None
+        self.refresh_lvl_0()
 
     #request I/O for specified disk
-    #do nothing if no process is using CPU
-    #do nothing if disk requested does not exist
     def request_io(self, num, file_name):
+        #do nothing if no process is using CPU
         if self.using_CPU == None:
             return
+        #do nothing if disk requested does not exist
         elif int(num) >= self.disk_count:
             return
+
         self.disks[int(num)].request_io(file_name, self.using_CPU)
         #remove process from CPU
         self.using_CPU = None
         self.refresh_lvl_0()
 
     #terminate I/O for specified disk
-    #do nothing if disk requested does not exist
-    #do nothing if disk requested is not being used by any process
     def terminate_io(self, num):
+        #do nothing if disk requested does not exist
         if int(num) >= self.disk_count:
             return
+        #do nothing if disk requested is not being used by any process
         elif self.disks[int(num)].using_HDD == None:
             return
 
         process = self.disks[int(num)].terminate_io()
-        #process returned from hdd.terminate_io needs to be put back in ready-queue
+
+        #process returned from hdd.terminate_io is put back into ready-queue
         if self.using_CPU.level == 0:
             self.lvl_0_q.append(process)
         elif self.using_CPU.level == 1:
@@ -137,20 +140,23 @@ class CPU:
 
 
     #add a specified page to memory
-    #do nothing if no process is using CPU
     def access_memory(self, page):
+        #do nothing if no process is using CPU
         if self.using_CPU == None:
             return
+
         self.memory.add_to_memory(page, self.using_CPU.pid)
 
     #"Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
     def show_cpu(self):
+        print ("")
         print("Using CPU:")
         if self.using_CPU != None:
             print(self.using_CPU.pid)
         else:
             print("[idle]")
 
+        print ("")
         print("In ready-queue: ")
 
         print("Level 0: ")
@@ -173,16 +179,17 @@ class CPU:
         else:
             for i in self.lvl_2_q:
                 print(i.pid)
-
+                
+        print ("")
 
     # "Shows what processes are currently using the hard disks and what processes are waiting to use them.
     # For each busy hard disk show the process that uses it and show its I/O-queue.
     # Make sure to display the filenames (from the d command) for each process. The enumeration of hard disks starts from 0."
     def show_disk(self):
         for i in range(self.disks[0].hdd_count):
+            print ("")
             print( "Hard Disk {}:".format(i) )
             print( "Using disk:")
-
             if self.disks[i].using_HDD != None:
                 print(self.disks[i].using_HDD.pid, " : ", self.disks[i].using_HDD.file_name)
             else:
@@ -192,6 +199,7 @@ class CPU:
                 print(j.pid, " : ", j.file_name)
             if len(self.disks[i].io_queue) == 0:
                 print ("[empty]")
+            print ("")
 
     # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.
     # The enumeration of pages and frames starts from 0.""
