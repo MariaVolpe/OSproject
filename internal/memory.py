@@ -25,13 +25,12 @@ class Mem:
     #if any memory is unused it will be placed in the first unused frame because 0 will be least recently used
     def add_to_memory(self, page, pid):
         #if page already belongs to process
-        index = -1
         if pid in self.table["PID"]:
             for i in range(len(self.table["PID"])):
                 if self.table["PID"][i] == pid:
-                    index = i
-            if self.table["Page Number"][index] == page:
-                self.update(index)
+                    if self.table["Page Number"][i] == int(page):
+                        self.update(i)
+                        return
 
         #find frame of smallest timestamp (or first unused frame)
         min_timestamp = float("inf")
