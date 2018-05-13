@@ -28,15 +28,18 @@ def special_action(obj, s, page_size):
 
     #do nothing if too few arguments
     if len(arr) < 2:
+        print("Invalid command.")
         return
 
     #d number file_name
     if arr[0] == "d":
         #do nothing if specified disk isn't an integer
         if arr[1].isdigit() == False:
+            print("Invalid command.")
             return
         #do nothing if too few arguments
         if len(arr) < 3:
+            print("Invalid command.")
             return
 
         obj.request_io(arr[1], arr[2])
@@ -45,6 +48,7 @@ def special_action(obj, s, page_size):
     elif arr[0] == "D":
         #do nothing if specified disk isn't an integer
         if arr[1].isdigit() == False:
+            print("Invalid command.")
             return
         obj.terminate_io(arr[1])
 
@@ -52,6 +56,7 @@ def special_action(obj, s, page_size):
     #todo : does address have to be int? maybe isdigit won't work
     elif arr[0] == "m":
         if arr[1].isdigit() == False:
+            print("Invalid command.")
             return
         #page number = address/page size
         page = int(arr[1]) / int(page_size)
@@ -59,7 +64,7 @@ def special_action(obj, s, page_size):
 
     #error
     else:
-        dummy = 0
+        print("Invalid command.")
 
 
 def new_process(obj):
@@ -84,17 +89,27 @@ def main():
     # todo : error if inputted wrong
     # can these be floats?
     
-    RAM = input("How much RAM? ")
+    flag = True
+    while (flag):
 
-    while (RAM.isdigit() == False):
-        print ("Not a valid value for RAM.")
         RAM = input("How much RAM? ")
 
-    page_size = input("Size of page? ")
-
-    while (page_size.isdigit() == False):
-        print ("Not a valid value for page size.")
+        while (RAM.isdigit() == False):
+            print ("Not a valid value for RAM.")
+            RAM = input("How much RAM? ")
         page_size = input("Size of page? ")
+
+        while (page_size.isdigit() == False):
+            print ("Not a valid value for page size.")
+            page_size = input("Size of page? ")
+
+            print ("Not a valid value for page size.")
+
+        if int(RAM) % int(page_size) == 0:
+            flag = False
+        else:
+            print ("Not valid values for RAM and page size.")
+            print ("RAM value should be evenly divisible by page size.")
 
     disk_count = input("Number of disks? ")
 
@@ -103,7 +118,7 @@ def main():
         disk_count = input("Number of disks? ")
 
     print ("")
-    
+
     #frame number = ram/page size
     frame_count = int(RAM) / int(page_size)
 
