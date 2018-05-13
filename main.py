@@ -34,7 +34,7 @@ def special_action(obj, s, page_size):
     #d number file_name
     if arr[0] == "d":
         #do nothing if specified disk isn't an integer
-        if arr[1].isdigit() == False:
+        if not arr[1].isdigit():
             print("Invalid command.")
             return
         #do nothing if too few arguments
@@ -47,15 +47,14 @@ def special_action(obj, s, page_size):
     #D number
     elif arr[0] == "D":
         #do nothing if specified disk isn't an integer
-        if arr[1].isdigit() == False:
+        if not arr[1].isdigit():
             print("Invalid command.")
             return
         obj.terminate_io(arr[1])
 
     #m address
-    #todo : does address have to be int? maybe isdigit won't work
     elif arr[0] == "m":
-        if arr[1].isdigit() == False:
+        if not arr[1].isdigit():
             print("Invalid command.")
             return
         #page number = address/page size
@@ -70,36 +69,40 @@ def special_action(obj, s, page_size):
 def new_process(obj):
     obj.scheduler()
 
+
 def time_quantum(obj):
     obj.time_quantum()
+
 
 def terminate(obj):
     obj.terminate()
 
+
 def show_cpu(obj):
     obj.show_cpu()
+
 
 def show_disk(obj):
     obj.show_disk()
 
+
 def show_memory(obj):
     obj.show_memory()
 
+
 def main():
-    # todo : error if inputted wrong
-    # can these be floats?
     
     flag = True
     while (flag):
 
         RAM = input("How much RAM? ")
 
-        while (RAM.isdigit() == False):
+        while (not RAM.isdigit()):
             print ("Not a valid value for RAM.")
             RAM = input("How much RAM? ")
         page_size = input("Size of page? ")
 
-        while (page_size.isdigit() == False):
+        while (not page_size.isdigit()):
             print ("Not a valid value for page size.")
             page_size = input("Size of page? ")
 
@@ -113,7 +116,7 @@ def main():
 
     disk_count = input("Number of disks? ")
 
-    while (disk_count.isdigit() == False):
+    while (not disk_count.isdigit()):
         print ("Not a valid value for number of disks.")
         disk_count = input("Number of disks? ")
 
@@ -122,7 +125,7 @@ def main():
     #frame number = ram/page size
     frame_count = int(RAM) / int(page_size)
 
-    #object of class
+    #object of class CPU
     obj = cpu.CPU(int(disk_count), frame_count)
 
     while(True):
@@ -130,6 +133,7 @@ def main():
         s.strip()
 
         evaluate(s, obj, page_size)
+
 
 if __name__ == "__main__":
     main()

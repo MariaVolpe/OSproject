@@ -26,15 +26,15 @@ class Mem:
     def add_to_memory(self, page, pid):
         #if page already belongs to process
         if pid in self.table["PID"]:
-            for i in range(len(self.table["PID"])):
+            for i, val in enumerate(self.table["PID"]):
                 if self.table["PID"][i] == pid:
                     if self.table["Page Number"][i] == int(page):
-                        self.update(i)
+                        self.update_timestamp(i)
                         return
 
         #find frame of smallest timestamp (or first unused frame)
         min_timestamp = float("inf")
-        for i in range(len(self.table["Timestamp"])):
+        for i, val in enumerate(self.table["Timestamp"]):
             if self.table["Timestamp"][i] < min_timestamp:
                 min_timestamp = self.table["Timestamp"][i]
                 min_index = i
@@ -47,14 +47,14 @@ class Mem:
         self.table["PID"][min_index] = pid
 
     #if page already belongs to process, update timestamp
-    def update(self, index):
+    def update_timestamp(self, index):
         self.table["Timestamp"][index] = self.timestamp
         self.timestamp += 1
 
     #reclaim memory for a terminated process
     def reclaim_memory(self, pid):
         #check for pid in list of pids and reset values associated with it
-        for i in range(len(self.table["PID"])):
+        for i, val in enumerate(self.table["PID"]):
             if self.table["PID"][i] == pid:
                 self.table["Timestamp"][i] = 0
                 self.table["Page Number"][i] = -1
@@ -62,11 +62,10 @@ class Mem:
 
     # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.
     # The enumeration of pages and frames starts from 0.""
-    # todo : print out a message if table is empty
     def show_memory(self):
         isEmpty = False
         print ("")
-        for i in range(len(self.table["Frames"])):
+        for i, val in enumerate(self.table["Frames"]):
             if self.table["PID"][i] != -1:
                 isEmpty = True
                 print ("Frame: ", self.table["Frames"][i], "\t", "Page: ", self.table["Page Number"][i], "\t", "PID: ", self.table["PID"][i], "\t", "Timestamp: ", self.table["Timestamp"][i])

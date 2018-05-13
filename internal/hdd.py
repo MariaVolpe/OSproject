@@ -12,7 +12,7 @@ class HDD:
 
     def request_io(self, file_name, process):
         process.file_name = file_name
-        if self.using_HDD == None:
+        if not self.using_HDD:
             self.using_HDD = process
             self.file_name = file_name
         else:
@@ -28,7 +28,8 @@ class HDD:
         return process
 
     def refresh_io(self):
-        if len(self.io_queue) == 0:
+        
+        if not self.io_queue:
             self.using_HDD = None
         else:
             self.using_HDD = self.io_queue.popleft()
