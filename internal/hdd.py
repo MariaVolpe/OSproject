@@ -1,36 +1,53 @@
 from collections import deque
 
 class HDD:
-    hdd_count = 0
+    __hdd_count = 0
 
     def __init__(self):
-        HDD.hdd_count += 1
-        self.io_queue = deque()
-        self.using_HDD = None
+        HDD.__hdd_count += 1
+        self.__io_queue = deque()
+        self.__using_HDD = None
         #name of file using HDD
-        self.file_name = ""
+        self.__file_name = ""
 
-    def request_io(self, file_name, process):
-        process.file_name = file_name
-        if not self.using_HDD:
-            self.using_HDD = process
-            self.file_name = file_name
+    @property
+    def hdd_count(self):
+        return HDD.__hdd_count
+
+    @property
+    def io_queue(self):
+        return self.__io_queue
+
+    @property
+    def using_HDD(self):
+        return self.__using_HDD
+
+    @property
+    def file_name(self):
+        return self.__file_name
+
+    def request_io(self, new_file, process):
+        process.file_name = new_file
+        if not self.__using_HDD:
+            self.__using_HDD = process
+            self.__file_name = new_file
+            print(self.__file_name)
         else:
-            self.io_queue.append(process)
+            self.__io_queue.append(process)
 
     #stop process from using HDD, refresh I/O queue and then return the process
     #only is called from CPU class if there is a process currently using the disk
     def terminate_io(self):
-        process = self.using_HDD
+        process = self.__using_HDD
         process.file_name = ""
-        self.using_HDD = None
+        self.__using_HDD = None
         self.refresh_io()
         return process
 
     def refresh_io(self):
         
-        if not self.io_queue:
-            self.using_HDD = None
+        if not self.__io_queue:
+            self.__using_HDD = None
         else:
-            self.using_HDD = self.io_queue.popleft()
-            self.file_name = self.using_HDD.file_name
+            self.__using_HDD = self.__io_queue.popleft()
+            self.__file_name = self.__using_HDD.file_name

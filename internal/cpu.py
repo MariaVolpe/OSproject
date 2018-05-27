@@ -5,170 +5,170 @@ from internal import memory
 
 class CPU:
 
-    using_CPU = None
+    __using_CPU = None
 
     def __init__(self, disk_count, frame_count):
-        self.lvl_0_q = deque()
-        self.lvl_1_q = deque()
-        self.lvl_2_q = deque()
-        self.frame_count = frame_count
-        self.disks = []
-        self.disk_count = disk_count
-        self.memory = memory.Mem(int(frame_count))
+        self.__lvl_0_q = deque()
+        self.__lvl_1_q = deque()
+        self.__lvl_2_q = deque()
+        self.__frame_count = frame_count
+        self.__disks = []
+        self.__disk_count = disk_count
+        self.__memory = memory.Mem(int(frame_count))
 
         for i in range(disk_count):
             disk = hdd.HDD()
-            self.disks.append(disk)
+            self.__disks.append(disk)
 
     def scheduler(self):
         #add process to queue and then refresh
         process = pcb.PCB()
         #allocate memory for process at page 0
-        self.memory.add_to_memory(0, process.pid)
-        self.lvl_0_q.appendleft(process)
+        self.__memory.add_to_memory(0, process.pid)
+        self.__lvl_0_q.appendleft(process)
         self.refresh_lvl_0()
         
     def refresh_lvl_0(self):
         #if CPU is idle and there are no processes queued on level 0
-        if not self.using_CPU and not self.lvl_0_q:
+        if not self.__using_CPU and not self.__lvl_0_q:
             self.refresh_lvl_1()
 
         #if CPU is idle let in a process from level 0
-        elif not self.using_CPU:
-            self.using_CPU = self.lvl_0_q.pop()
+        elif not self.__using_CPU:
+            self.__using_CPU = self.__lvl_0_q.pop()
 
         #if level 0 has a queue and CPU is in use by a lower priority process: preempt
-        elif self.using_CPU.level > 0 and self.lvl_0_q:
+        elif self.__using_CPU.level > 0 and self.__lvl_0_q:
             self.priority_preempt()
-            self.using_CPU = self.lvl_0_q.pop()
+            self.__using_CPU = self.__lvl_0_q.pop()
 
-        elif self.using_CPU.level > 1 and self.lvl_1_q:
+        elif self.__using_CPU.level > 1 and self.__lvl_1_q:
             self.priority_preempt()
-            self.using_CPU = self.lvl_1_q.pop()
+            self.__using_CPU = self.__lvl_1_q.pop()
 
     # todo : flatten by making the first if a guardian clause
     def refresh_lvl_1(self):
         #if CPU is idle and there are no processes queued on level 0, let in a level 1 process
-        if not self.using_CPU and not self.lvl_0_q:
-            if self.lvl_1_q:
-                self.using_CPU = self.lvl_1_q.pop()
+        if not self.__using_CPU and not self.__lvl_0_q:
+            if self.__lvl_1_q:
+                self.__using_CPU = self.__lvl_1_q.pop()
             #if there are no processes queued on level 0, let in a level 1 process
-            elif not self.lvl_1_q:
+            elif not self.__lvl_1_q:
                 self.refresh_lvl_2()
 
     def refresh_lvl_2(self):
         #if CPU is idle and there are no higher priority processes, let in a level 2 process
-        if not self.using_CPU and not self.lvl_0_q and not self.lvl_1_q:
-            if self.lvl_2_q:
-                self.using_CPU = self.lvl_2_q.pop()
+        if not self.__using_CPU and not self.__lvl_0_q and not self.__lvl_1_q:
+            if self.__lvl_2_q:
+                self.__using_CPU = self.__lvl_2_q.pop()
 
     #increase time quantum for process using CPU
     def time_quantum(self):
         #do nothing if CPU is not being used
-        if not self.using_CPU:
+        if not self.__using_CPU:
             print("Can't increase time quantum. CPU is idle.")
             return
-        if self.using_CPU.level == 2:
+        if self.__using_CPU.level == 2:
             print("Increasing time quantum has no effect. Process in CPU belongs to level 2.")
             return
 
-        self.using_CPU.time_quantum +=1
-        if self.using_CPU.level  == 0:
+        self.__using_CPU.increment_time_quantum()
+        if self.__using_CPU.level  == 0:
             self.preempt()
-        if self.using_CPU.level == 1 and self.using_CPU.time_quantum == 2:
+        if self.__using_CPU.level == 1 and self.__using_CPU.time_quantum == 2:
             self.preempt()
 
     #preempt if process has exceeded time quantums allowed on for its level
     #add process to queue one level below its current priority level
     def preempt(self):
         #reset time quantums
-        self.using_CPU.time_quantum = 0
-        process = self.using_CPU
-        if not self.using_CPU.level:
+        self.__using_CPU.reset_time_quantum()
+        process = self.__using_CPU
+        if not self.__using_CPU.level:
             process.level = 1
-            self.lvl_1_q.appendleft(process)
-        elif self.using_CPU.level == 1:
+            self.__lvl_1_q.appendleft(process)
+        elif self.__using_CPU.level == 1:
             process.level = 2
-            self.lvl_2_q.appendleft(process)
-        self.using_CPU = None
+            self.__lvl_2_q.appendleft(process)
+        self.__using_CPU = None
         self.refresh_lvl_0()
 
     #preempt if a higher level process arrives
     #add process to front of it's priority level queue
     def priority_preempt(self):
-        if self.using_CPU.level == 1:
-            self.lvl_1_q.append(self.using_CPU)
-        if self.using_CPU.level == 2:
-            self.lvl_2_q.append(self.using_CPU)
-        self.using_CPU = None
+        if self.__using_CPU.level == 1:
+            self.__lvl_1_q.append(self.__using_CPU)
+        if self.__using_CPU.level == 2:
+            self.__lvl_2_q.append(self.__using_CPU)
+        self.__using_CPU = None
 
     #terminate process in CPU
     def terminate(self):
         #do nothing if CPU is not being used
-        if not self.using_CPU:
+        if not self.__using_CPU:
             print("Can't terminate. CPU is idle.")
             return
 
         #reclaim memory
-        self.memory.reclaim_memory(self.using_CPU.pid)
-        self.using_CPU = None
+        self.__memory.reclaim_memory(self.__using_CPU.pid)
+        self.__using_CPU = None
         self.refresh_lvl_0()
 
     #request I/O for specified disk
     def request_io(self, num, file_name):
         #do nothing if no process is using CPU
-        if not self.using_CPU:
+        if not self.__using_CPU:
             print("Cannot request I/O. CPU is idle.")
             return
         #do nothing if disk requested does not exist
-        elif int(num) >= self.disk_count:
+        elif int(num) >= self.__disk_count:
             print("Specified disk number does not exist.")
             return
 
-        self.disks[int(num)].request_io(file_name, self.using_CPU)
+        self.__disks[int(num)].request_io(file_name, self.__using_CPU)
         #remove process from CPU
-        self.using_CPU = None
+        self.__using_CPU = None
         self.refresh_lvl_0()
 
     #terminate I/O for specified disk
     def terminate_io(self, num):
         #do nothing if disk requested does not exist
-        if int(num) >= self.disk_count:
+        if int(num) >= self.__disk_count:
             print("Specified disk number does not exist.")
             return
         #do nothing if disk requested is not being used by any process
-        elif not self.disks[int(num)].using_HDD:
+        elif not self.__disks[int(num)].using_HDD:
             print("Cannot terminate I/O usage for disk {}. Disk is idle.".format(num))
             return
         
-        process = self.disks[int(num)].terminate_io()
+        process = self.__disks[int(num)].terminate_io()
 
         #reset time quantums
-        process.time_quantum = 0
+        process.reset_time_quantum()
         #process returned from hdd.terminate_io is put back into ready-queue
         if process.level == 0:
-            self.lvl_0_q.append(process)
+            self.__lvl_0_q.append(process)
         elif process.level == 1:
-            self.lvl_1_q.append(process)
+            self.__lvl_1_q.append(process)
         else:
-            self.lvl_2_q.append(process)
+            self.__lvl_2_q.append(process)
         self.refresh_lvl_0()
 
     #add a specified page to memory
     def access_memory(self, page):
         #do nothing if no process is using CPU
-        if not self.using_CPU:
+        if not self.__using_CPU:
             print ("Cannot access memory for process using CPU. CPU is idle.")
             return
 
-        self.memory.add_to_memory(page, self.using_CPU.pid)
+        self.__memory.add_to_memory(page, self.__using_CPU.pid)
 
     #"Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
     def show_cpu(self):
         print ("")
         print("Using CPU:")
-        if self.using_CPU:
-            print("PID", self.using_CPU.pid, "from level", self.using_CPU.level)
+        if self.__using_CPU:
+            print("PID", self.__using_CPU.pid, "from level", self.__using_CPU.level)
         else:
             print("[idle]")
 
@@ -176,24 +176,24 @@ class CPU:
         print("In ready-queue: ")
 
         print("Level 0: ")
-        if not self.lvl_0_q:
+        if not self.__lvl_0_q:
             print("[empty]")
         else:
-            for i in self.lvl_0_q:
+            for i in self.__lvl_0_q:
                 print("PID", i.pid)
 
         print("Level 1: ")
-        if not self.lvl_1_q:
+        if not self.__lvl_1_q:
             print("[empty]")
         else:
-            for i in self.lvl_1_q:
+            for i in self.__lvl_1_q:
                 print("PID", i.pid)
 
         print("Level 2: ")
-        if not self.lvl_2_q:
+        if not self.__lvl_2_q:
             print("[empty]")
         else:
-            for i in self.lvl_2_q:
+            for i in self.__lvl_2_q:
                 print("PID", i.pid)
 
         print ("")
@@ -203,21 +203,21 @@ class CPU:
     # Make sure to display the filenames (from the d command) for each process. The enumeration of hard disks starts from 0."
     def show_disk(self):
         print ("")
-        for i in range(self.disks[0].hdd_count):
+        for i in range(self.__disks[0].hdd_count):
             print( "Hard Disk {}:".format(i))
             print( "Using disk:")
-            if self.disks[i].using_HDD:
-                print("PID", self.disks[i].using_HDD.pid, "is using", "\"" + self.disks[i].using_HDD.file_name + "\"")
+            if self.__disks[i].using_HDD:
+                print("PID", self.__disks[i].using_HDD.pid, "is using", "\"" + self.__disks[i].using_HDD.file_name + "\"")
             else:
                 print( "[idle]" )
             print( "In I/O queue:")
-            for j in self.disks[i].io_queue:
+            for j in self.__disks[i].io_queue:
                 print("PID", j.pid, "wants to use",  "\"" + j.file_name + "\"")
-            if not self.disks[i].io_queue:
+            if not self.__disks[i].io_queue:
                 print ("[empty]")
             print ("")
 
     # "Shows the state of memory. For each used frame display the process number that occupies it and the page number stored in it.
     # The enumeration of pages and frames starts from 0.""
     def show_memory(self):
-        self.memory.show_memory()
+        self.__memory.show_memory()
