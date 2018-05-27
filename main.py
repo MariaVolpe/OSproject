@@ -8,10 +8,7 @@
 from internal import cpu
 
 def evaluate(s, obj, page_size):
-
-    #todo : exit function
-
-    d = {"A" : new_process, "Q" : time_quantum, "t" : terminate, "S r" : show_cpu, "S i" : show_disk, "S m" : show_memory}
+    d = {"A" : new_process, "Q" : time_quantum, "t" : terminate, "S r" : show_cpu, "S i" : show_disk, "S m" : show_memory, "Quit" : quit_program}
 
     if s in d:
         d[s](obj)
@@ -90,8 +87,11 @@ def show_memory(obj):
     obj.show_memory()
 
 
+def quit_program(obj):
+    exit()
+
+
 def main():
-    
     flag = True
     while (flag):
 
