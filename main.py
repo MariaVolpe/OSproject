@@ -7,132 +7,116 @@
 
 from internal import cpu
 
-def evaluate(s, obj, page_size):
-    d = {"A" : new_process, "Q" : time_quantum, "t" : terminate, "S r" : show_cpu, "S i" : show_disk, "S m" : show_memory, "Quit" : quit_program}
 
-    if s in d:
-        d[s](obj)
+class Interface:
 
-    #if user accidentally enters empty string, do nothing
-    elif s == "":
-        dummy = 0
-    else:
-        special_action(obj, s, page_size)
+    def __init__(self):
+        self.page_size = ""
+        self.s = ""
+        self.obj = self.begin()
+        # build list of commands user can input
+        self.commands = {"A": self.obj.scheduler, "Q": self.obj.time_quantum, "t": self.obj.terminate,
+                         "S r": self.obj.show_cpu, "S i": self.obj.show_disk, "S m": self.obj.show_memory}
 
+    def evaluate(self):
+        # if user accidentally enters empty string, ignore it
+        if self.s == "":
+            return
+        if self.s == "Quit":
+            exit()
 
-def special_action(obj, s, page_size):
-    arr = s.split()
+        # check if user input is in dict of commands and call the command
+        # if not call special_action
+        self.commands.get(self.s, self.special_action)()
 
-    #do nothing if too few arguments
-    if len(arr) < 2:
-        print("Invalid command.")
-        return
+    def special_action(self):
+        arr = self.s.split()
 
-    #d number file_name
-    if arr[0] == "d":
-        #do nothing if specified disk isn't an integer
-        if not arr[1].isdigit():
+        # do nothing if too few arguments
+        if len(arr) < 2:
             print("Invalid command.")
             return
-        #do nothing if too few arguments
-        if len(arr) < 3:
-            print("Invalid command.")
-            return
 
-        obj.request_io(arr[1], arr[2])
+        # d number file_name
+        if arr[0] == "d":
+            # do nothing if specified disk isn't an integer
+            if not arr[1].isdigit():
+                print("Invalid command.")
+                return
+            # do nothing if too few arguments
+            if len(arr) < 3:
+                print("Invalid command.")
+                return
 
-    #D number
-    elif arr[0] == "D":
-        #do nothing if specified disk isn't an integer
-        if not arr[1].isdigit():
-            print("Invalid command.")
-            return
-        obj.terminate_io(arr[1])
+            self.obj.request_io(arr[1], arr[2])
 
-    #m address
-    elif arr[0] == "m":
-        if not arr[1].isdigit():
-            print("Invalid command.")
-            return
-        #page number = address/page size
-        page = int(arr[1]) / int(page_size)
-        obj.access_memory(page)
+        # D number
+        elif arr[0] == "D":
+            # do nothing if specified disk isn't an integer
+            if not arr[1].isdigit():
+                print("Invalid command.")
+                return
+            self.obj.terminate_io(arr[1])
 
-    #error
-    else:
-        print("Invalid command.")
+        # m address
+        elif arr[0] == "m":
+            if not arr[1].isdigit():
+                print("Invalid command.")
+                return
+            # page number = address/page size
+            page = int(arr[1]) / int(self.page_size)
+            self.obj.access_memory(page)
 
-
-def new_process(obj):
-    obj.scheduler()
-
-
-def time_quantum(obj):
-    obj.time_quantum()
-
-
-def terminate(obj):
-    obj.terminate()
-
-
-def show_cpu(obj):
-    obj.show_cpu()
-
-
-def show_disk(obj):
-    obj.show_disk()
-
-
-def show_memory(obj):
-    obj.show_memory()
-
-
-def quit_program(obj):
-    exit()
-
-
-def main():
-    flag = True
-    while (flag):
-
-        RAM = input("How much RAM? ")
-
-        while (not RAM.isdigit()):
-            print ("Not a valid value for RAM.")
-            RAM = input("How much RAM? ")
-        page_size = input("Size of page? ")
-
-        while (not page_size.isdigit()):
-            print ("Not a valid value for page size.")
-            page_size = input("Size of page? ")
-
-            print ("Not a valid value for page size.")
-
-        if int(RAM) % int(page_size) == 0:
-            flag = False
+        # error
         else:
-            print ("Not valid values for RAM and page size.")
-            print ("RAM value should be evenly divisible by page size.")
+            print("Invalid command.")
 
-    disk_count = input("Number of disks? ")
+    def begin(self):
+        flag = True
+        while flag:
+            ram = input("How much RAM? ")
 
-    while (not disk_count.isdigit()):
-        print ("Not a valid value for number of disks.")
+            while not ram.isdigit():
+                print ("Not a valid value for RAM.")
+                ram = input("How much RAM? ")
+
+            self.page_size = input("Size of page? ")
+
+            while not self.page_size.isdigit():
+                print ("Not a valid value for page size.")
+                self.page_size = input("Size of page? ")
+
+                print ("Not a valid value for page size.")
+
+            if int(ram) % int(self.page_size) == 0:
+                flag = False
+            else:
+                print ("Not valid values for RAM and page size.")
+                print ("RAM value should be evenly divisible by page size.")
+
         disk_count = input("Number of disks? ")
 
-    print ("")
+        while not disk_count.isdigit():
+            print ("Not a valid value for number of disks.")
+            disk_count = input("Number of disks? ")
 
-    #frame number = ram/page size
-    frame_count = int(RAM) / int(page_size)
+        print ("")
+        # frame number = ram/page size
+        frame_count = int(ram) / int(self.page_size)
 
-    #object of class CPU
-    obj = cpu.CPU(int(disk_count), frame_count)
+        # object of class CPU
+        self.obj = cpu.CPU(int(disk_count), frame_count)
+        return self.obj
 
-    while(True):
-        s = input()
-        s.strip()
+    def run(self):
+        while True:
+            self.s = input()
+            self.s.strip()
+            self.evaluate()
 
-        evaluate(s, obj, page_size)
+def main():
+    obj = Interface()
+    obj.run()
 
 
 if __name__ == "__main__":

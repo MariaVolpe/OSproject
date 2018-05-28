@@ -1,5 +1,6 @@
 from collections import deque
 
+
 class HDD:
     __hdd_count = 0
 
@@ -7,7 +8,7 @@ class HDD:
         HDD.__hdd_count += 1
         self.__io_queue = deque()
         self.__using_HDD = None
-        #name of file using HDD
+        # name of file using HDD
         self.__file_name = ""
 
     @property
@@ -35,8 +36,8 @@ class HDD:
         else:
             self.__io_queue.append(process)
 
-    #stop process from using HDD, refresh I/O queue and then return the process
-    #only is called from CPU class if there is a process currently using the disk
+    # stop process from using HDD, refresh I/O queue and then return the process
+    # only is called from CPU class if there is a process currently using the disk
     def terminate_io(self):
         process = self.__using_HDD
         process.file_name = ""
@@ -45,7 +46,7 @@ class HDD:
         return process
 
     def refresh_io(self):
-        
+
         if not self.__io_queue:
             self.__using_HDD = None
         else:
