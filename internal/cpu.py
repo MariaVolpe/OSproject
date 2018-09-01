@@ -72,21 +72,16 @@ class CPU:
         if not self.__using_CPU:
             print("Can't increase time quantum. CPU is idle.")
             return
-        if self.__using_CPU.level == 2:
-            print("Increasing time quantum has no effect. Process in CPU belongs to level 2.")
-            return
 
         self.__using_CPU.increment_time_quantum()
-        if self.__using_CPU.level == 0:
-            self.preempt()
-        if self.__using_CPU.level == 1 and self.__using_CPU.time_quantum == 2:
+        if self.__using_CPU.should_preempt():
             self.preempt()
 
     # preempt if process has exceeded time quanta allowed on for its level
     # add process to queue one level below its current priority level
     def preempt(self):
         # reset time quanta
-        self.__using_CPU.reset_time_quantum()
+        self.__using_CPU.reset_time_quanta()
         process = self.__using_CPU
         if not self.__using_CPU.level:
             process.level = 1
@@ -148,7 +143,7 @@ class CPU:
         process = self.__disks[int(num)].terminate_io()
 
         # reset time quanta
-        process.reset_time_quantum()
+        process.reset_time_quanta()
         # process returned from hdd.terminate_io is put back into ready-queue
         if process.level == 0:
             self.__lvl_0_q.append(process)

@@ -38,7 +38,18 @@ class PCB:
         self.__file_name = name
 
     def increment_time_quantum(self):
+        if self.__level == 2:
+            print("Increasing time quantum has no effect. Process in CPU belongs to level 2.")
+            return
         self.__time_quantum += 1
 
-    def reset_time_quantum(self):
+    def reset_time_quanta(self):
         self.__time_quantum = 0
+
+    def should_preempt(self):
+        if self.__level == 0:
+            return True
+        elif self.__level == 1 and self.__time_quantum == 2:
+            return True
+
+        return False
