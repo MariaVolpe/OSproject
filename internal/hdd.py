@@ -54,12 +54,13 @@ class HDD:
         print("Using disk:")
         if self.__using_HDD:
             message = "is using"
-            self.__using_HDD.print_disk(message)
+            self.__using_HDD.print_disk_process(message)
         else:
             print("[idle]")
+
         print("In I/O queue:")
-        for j in self.__io_queue:
+        for process in self.__io_queue:
             message = "wants to use"
-            j.print_disk(message)
+            process.print_disk_process(message)
         if not self.__io_queue:
             print ("[empty]")

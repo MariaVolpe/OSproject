@@ -61,11 +61,11 @@ class PCB:
     def which_queue_post_preempt(self):
         return self.__level + 1
 
-    def printCPU(self):
+    def print_CPU_process(self):
         print("PID", self.__pid, "from level", self.__level)
 
     def print(self):
         print("PID", self.__pid)
 
-    def print_disk(self, message):
+    def print_disk_process(self, message):
         print("PID", self.__pid, message, "\"" + self.__file_name + "\"")

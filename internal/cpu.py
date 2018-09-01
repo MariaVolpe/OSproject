@@ -147,7 +147,7 @@ class CPU:
         print ("")
         print("Using CPU:")
         if self.__using_CPU:
-            self.__using_CPU.printCPU()
+            self.__using_CPU.print_CPU_process()
         else:
             print("[idle]")
 
