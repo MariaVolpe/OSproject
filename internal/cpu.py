@@ -8,9 +8,7 @@ class CPU:
     __using_CPU = None
 
     def __init__(self, disk_count, frame_count):
-        self.__lvl_0_q = deque()
-        self.__lvl_1_q = deque()
-        self.__lvl_2_q = deque()
+        self.__level_queues = [deque() for i in range(3)]
         self.__frame_count = frame_count
         self.__disks = []
         self.__disk_count = disk_count
@@ -25,46 +23,46 @@ class CPU:
         process = pcb.PCB()
         # allocate memory for process at page 0
         self.__memory.add_to_memory(0, process.pid)
-        self.__lvl_0_q.appendleft(process)
+        self.__level_queues[0].appendleft(process)
         self.refresh_lvl_0()
 
     def refresh_lvl_0(self):
         # if CPU is idle and there are no processes queued on level 0
-        if not self.__using_CPU and not self.__lvl_0_q:
+        if not self.__using_CPU and not self.__level_queues[0]:
             self.refresh_lvl_1()
 
         # if CPU is idle let in a process from level 0
         elif not self.__using_CPU:
-            self.__using_CPU = self.__lvl_0_q.pop()
+            self.__using_CPU = self.__level_queues[0].pop()
 
         # if level 0 has a queue and CPU is in use by a lower priority process: preempt
-        elif self.__using_CPU.level > 0 and self.__lvl_0_q:
+        elif self.__using_CPU.level > 0 and self.__level_queues[0]:
             self.priority_preempt()
-            self.__using_CPU = self.__lvl_0_q.pop()
+            self.__using_CPU = self.__level_queues[0].pop()
 
-        elif self.__using_CPU.level > 1 and self.__lvl_1_q:
+        elif self.__using_CPU.level > 1 and self.__level_queues[1]:
             self.priority_preempt()
-            self.__using_CPU = self.__lvl_1_q.pop()
+            self.__using_CPU = self.__level_queues[1].pop()
 
     # todo : flatten by making the first if a guardian clause
     def refresh_lvl_1(self):
         # if CPU is busy and there are processes waiting on level 0, do nothing
-        if self.__using_CPU and self.__lvl_0_q:
+        if self.__using_CPU and self.__level_queues[0]:
             return
         # let in a level 1 process
-        if self.__lvl_1_q:
-            self.__using_CPU = self.__lvl_1_q.pop()
+        if self.__level_queues[1]:
+            self.__using_CPU = self.__level_queues[1].pop()
         # if there are no processes queued on level 1, let in a level 2 process
-        elif not self.__lvl_1_q:
+        elif not self.__level_queues[1]:
             self.refresh_lvl_2()
 
     def refresh_lvl_2(self):
-        if self.__using_CPU and self.__lvl_0_q and self.__lvl_1_q:
+        if self.__using_CPU and self.__level_queues[0] and self.__level_queues[1]:
             return
 
         # let in a level 2 process
-        if self.__lvl_2_q:
-            self.__using_CPU = self.__lvl_2_q.pop()
+        if self.__level_queues[2]:
+            self.__using_CPU = self.__level_queues[2].pop()
 
     # increase time quantum for process using CPU
     def time_quantum(self):
@@ -82,11 +80,8 @@ class CPU:
     def preempt(self):
         process = self.__using_CPU
         process.preempt()
-        if process.which_queue() == 1:
-            self.__lvl_1_q.appendleft(process)
-        else:
-            self.__lvl_2_q.appendleft(process)
-        
+        self.__level_queues[process.which_queue_post_preempt()].appendleft(process)
+
         self.__using_CPU = None
         self.refresh_lvl_0()
 
@@ -94,9 +89,9 @@ class CPU:
     # add process to front of it's priority level queue
     def priority_preempt(self):
         if self.__using_CPU.level == 1:
-            self.__lvl_1_q.append(self.__using_CPU)
+            self.__level_queues[1].append(self.__using_CPU)
         if self.__using_CPU.level == 2:
-            self.__lvl_2_q.append(self.__using_CPU)
+            self.__level_queues[2].append(self.__using_CPU)
         self.__using_CPU = None
 
     # terminate process in CPU
@@ -144,11 +139,11 @@ class CPU:
         process.reset_time_quanta()
         # process returned from hdd.terminate_io is put back into ready-queue
         if process.level == 0:
-            self.__lvl_0_q.append(process)
+            self.__level_queues[0].append(process)
         elif process.level == 1:
-            self.__lvl_1_q.append(process)
+            self.__level_queues[1].append(process)
         else:
-            self.__lvl_2_q.append(process)
+            self.__level_queues[2].append(process)
         self.refresh_lvl_0()
 
     # add a specified page to memory
@@ -173,24 +168,24 @@ class CPU:
         print("In ready-queue: ")
 
         print("Level 0: ")
-        if not self.__lvl_0_q:
+        if not self.__level_queues[0]:
             print("[empty]")
         else:
-            for i in self.__lvl_0_q:
+            for i in self.__level_queues[0]:
                 print("PID", i.pid)
 
         print("Level 1: ")
-        if not self.__lvl_1_q:
+        if not self.__level_queues[1]:
             print("[empty]")
         else:
-            for i in self.__lvl_1_q:
+            for i in self.__level_queues[1]:
                 print("PID", i.pid)
 
         print("Level 2: ")
-        if not self.__lvl_2_q:
+        if not self.__level_queues[2]:
             print("[empty]")
         else:
-            for i in self.__lvl_2_q:
+            for i in self.__level_queues[2]:
                 print("PID", i.pid)
 
         print ("")

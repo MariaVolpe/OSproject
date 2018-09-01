@@ -58,5 +58,11 @@ class PCB:
         self.reset_time_quanta()
         self.__level += 1
     
-    def which_queue(self):
-        return self.__level += 1
+    def which_queue_post_preempt(self):
+        return self.__level + 1
+
+    def printCPU(self):
+        print("PID", self.__pid, "from level", self.__level)
+
+    def print(self):
+        print("PID", i.pid)
