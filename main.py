@@ -8,13 +8,13 @@ class Interface:
         self.s = ""
         self.obj = self.begin()
         # build list of commands user can input
-        self.commands = {"A": self.obj.scheduler, "Q": self.obj.time_quantum, "t": self.obj.terminate,
+        self.commands = {"A": self.obj.add_process, "Q": self.obj.time_quantum, "t": self.obj.terminate,
                          "S r": self.obj.show_cpu, "S i": self.obj.show_disk, "S m": self.obj.show_memory}
 
     def evaluate(self):
         if self.s == "":
             return
-        if self.s == "Quit":
+        if self.s == "Quit" or self.s == "quit":
             exit()
 
         # check if user input is in dict of commands and call the command
@@ -53,7 +53,7 @@ class Interface:
                 return
             # page number = address/page size
             page = int(arr[1]) / int(self.page_size)
-            self.obj.access_memory(page)
+            self.obj.add_to_memory(page)
 
         else:
             print("Invalid command.")

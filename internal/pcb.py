@@ -10,16 +10,8 @@ class PCB:
         self.__file_name = ""
 
     @property
-    def pid_count(self):
-        return PBC.__pid_count
-
-    @property
     def pid(self):
         return self.__pid
-
-    @property
-    def time_quantum(self):
-        return self.__time_quantum
 
     @property
     def which_queue(self):
@@ -42,6 +34,10 @@ class PCB:
     def reset_time_quanta(self):
         self.__time_quantum = 0
 
+    def demote(self):
+        self.reset_time_quanta()
+        self.__level += 1
+
     def should_preempt(self):
         if self.__level == 0:
             return True
@@ -54,15 +50,11 @@ class PCB:
             return True
         return False
 
-    def demote(self):
-        self.reset_time_quanta()
-        self.__level += 1
+    def print(self):
+        print("PID", self.__pid)
 
     def print_CPU_process(self):
         print("PID", self.__pid, "from level", self.__level)
-
-    def print(self):
-        print("PID", self.__pid)
 
     def print_disk_process(self, message):
         print("PID", self.__pid, message, "\"" + self.__file_name + "\"")

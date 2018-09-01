@@ -24,7 +24,8 @@ class Mem:
 
     # add the information to frame with smallest timestamp (the least recently used)
     # if any memory is unused it will be placed in the first unused frame because 0 will be least recently used
-    def add_to_memory(self, page, pid):
+    def add_to_memory(self, page, process):
+        pid = process.pid
         # if page already belongs to process
         if pid in self.__table["PID"]:
             for i, val in enumerate(self.__table["PID"]):

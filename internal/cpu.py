@@ -18,10 +18,9 @@ class CPU:
             disk = hdd.HDD()
             self.__disks.append(disk)
 
-    def scheduler(self):
-        # add process to queue and then refresh
+    def add_process(self):
         process = pcb.PCB()
-        # allocate memory for process at page 0
+        
         self.__memory.add_to_memory(0, process.pid)
         self.__level_queues[0].appendleft(process)
         self.refresh_lvl_0()
@@ -44,24 +43,18 @@ class CPU:
             self.priority_preempt()
             self.__using_CPU = self.__level_queues[1].pop()
 
-    # todo : flatten by making the first if a guardian clause
     def refresh_lvl_1(self):
-        # if CPU is busy and there are processes waiting on level 0, do nothing
         if self.__using_CPU and self.__level_queues[0]:
             return
-        # let in a level 1 process
-        if self.__level_queues[1]:
+        elif self.__level_queues[1]:
             self.__using_CPU = self.__level_queues[1].pop()
-        # if there are no processes queued on level 1, let in a level 2 process
         elif not self.__level_queues[1]:
             self.refresh_lvl_2()
 
     def refresh_lvl_2(self):
         if self.__using_CPU and self.__level_queues[0] and self.__level_queues[1]:
             return
-
-        # let in a level 2 process
-        if self.__level_queues[2]:
+        elif self.__level_queues[2]:
             self.__using_CPU = self.__level_queues[2].pop()
 
     def time_quantum(self):
@@ -115,23 +108,21 @@ class CPU:
         if num >= self.__disk_count:
             print("Specified disk number does not exist.")
             return
-        elif not self.__disks[num].using_HDD:
-            print("Cannot terminate I/O usage for disk {}. Disk is idle.".format(num))
-            return
-
         process = self.__disks[num].terminate_io()
+        if not process:
+            print("Cannot terminate I/O usage for disk {}. Disk is idle.".format(num))
+        
         process.reset_time_quanta()
 
         self.__level_queues[process.which_queue].append(process)
         self.refresh_lvl_0()
 
-    # add a specified page to memory
-    def access_memory(self, page):
+    def add_to_memory(self, page):
         if not self.__using_CPU:
             print ("Cannot access memory for process using CPU. CPU is idle.")
             return
 
-        self.__memory.add_to_memory(page, self.__using_CPU.pid)
+        self.__memory.add_to_memory(page, self.__using_CPU)
 
     # "Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
     def show_cpu(self):
