@@ -65,4 +65,4 @@ class PCB:
         print("PID", self.__pid, "from level", self.__level)
 
     def print(self):
-        print("PID", i.pid)
+        print("PID", self.__pid)

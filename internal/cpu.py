@@ -147,33 +147,18 @@ class CPU:
         print ("")
         print("Using CPU:")
         if self.__using_CPU:
-            print("PID", self.__using_CPU.pid, "from level", self.__using_CPU.level)
+            self.__using_CPU.printCPU()
         else:
             print("[idle]")
 
-        print ("")
-        print("In ready-queue: ")
-
-        print("Level 0: ")
-        if not self.__level_queues[0]:
-            print("[empty]")
-        else:
-            for i in self.__level_queues[0]:
-                print("PID", i.pid)
-
-        print("Level 1: ")
-        if not self.__level_queues[1]:
-            print("[empty]")
-        else:
-            for i in self.__level_queues[1]:
-                print("PID", i.pid)
-
-        print("Level 2: ")
-        if not self.__level_queues[2]:
-            print("[empty]")
-        else:
-            for i in self.__level_queues[2]:
-                print("PID", i.pid)
+        print("\nIn ready-queue: ")
+        for i, queue in enumerate(self.__level_queues):
+            print("Level {}:".format(i))
+            if not queue:
+                print("[empty]")
+            else:
+                for process in queue:
+                    process.print()
 
         print ("")
 
