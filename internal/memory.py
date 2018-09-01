@@ -47,12 +47,10 @@ class Mem:
         self.__table["Page Number"][min_index] = int(page)
         self.__table["PID"][min_index] = pid
 
-    # if page already belongs to process, update timestamp
     def update_timestamp(self, index):
         self.__table["Timestamp"][index] = self.__timestamp
         self.__timestamp += 1
 
-    # reclaim memory for a terminated process
     def reclaim_memory(self, pid):
         # check for pid in list of pids and reset values associated with it
         for i, val in enumerate(self.__table["PID"]):

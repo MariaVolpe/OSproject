@@ -8,7 +8,6 @@ class HDD:
         HDD.__hdd_count += 1
         self.__io_queue = deque()
         self.__using_HDD = None
-        # name of file using HDD
         self.__file_name = ""
 
     @property
@@ -46,7 +45,6 @@ class HDD:
         return process
 
     def refresh_io(self):
-
         if not self.__io_queue:
             self.__using_HDD = None
         else:

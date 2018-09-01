@@ -64,9 +64,7 @@ class CPU:
         if self.__level_queues[2]:
             self.__using_CPU = self.__level_queues[2].pop()
 
-    # increase time quantum for process using CPU
     def time_quantum(self):
-        # do nothing if CPU is not being used
         if not self.__using_CPU:
             print("Can't increase time quantum. CPU is idle.")
             return
@@ -94,48 +92,38 @@ class CPU:
             self.__level_queues[2].append(self.__using_CPU)
         self.__using_CPU = None
 
-    # terminate process in CPU
     def terminate(self):
-        # do nothing if CPU is not being used
         if not self.__using_CPU:
             print("Can't terminate. CPU is idle.")
             return
 
-        # reclaim memory
         self.__memory.reclaim_memory(self.__using_CPU.pid)
         self.__using_CPU = None
         self.refresh_lvl_0()
 
-    # request I/O for specified disk
     def request_io(self, num, file_name):
-        # do nothing if no process is using CPU
         if not self.__using_CPU:
             print("Cannot request I/O. CPU is idle.")
             return
-        # do nothing if disk requested does not exist
         elif int(num) >= self.__disk_count:
             print("Specified disk number does not exist.")
             return
 
         self.__disks[int(num)].request_io(file_name, self.__using_CPU)
-        # remove process from CPU
+
         self.__using_CPU = None
         self.refresh_lvl_0()
 
-    # terminate I/O for specified disk
     def terminate_io(self, num):
-        # do nothing if disk requested does not exist
         if int(num) >= self.__disk_count:
             print("Specified disk number does not exist.")
             return
-        # do nothing if disk requested is not being used by any process
         elif not self.__disks[int(num)].using_HDD:
             print("Cannot terminate I/O usage for disk {}. Disk is idle.".format(num))
             return
 
         process = self.__disks[int(num)].terminate_io()
 
-        # reset time quanta
         process.reset_time_quanta()
         # process returned from hdd.terminate_io is put back into ready-queue
         if process.level == 0:
@@ -148,7 +136,6 @@ class CPU:
 
     # add a specified page to memory
     def access_memory(self, page):
-        # do nothing if no process is using CPU
         if not self.__using_CPU:
             print ("Cannot access memory for process using CPU. CPU is idle.")
             return

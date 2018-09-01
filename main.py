@@ -1,10 +1,3 @@
-##############################
-#
-# Maria Volpe
-# Section 3
-#
-##############################
-
 from internal import cpu
 
 
@@ -19,7 +12,6 @@ class Interface:
                          "S r": self.obj.show_cpu, "S i": self.obj.show_disk, "S m": self.obj.show_memory}
 
     def evaluate(self):
-        # if user accidentally enters empty string, ignore it
         if self.s == "":
             return
         if self.s == "Quit":
@@ -32,18 +24,15 @@ class Interface:
     def special_action(self):
         arr = self.s.split()
 
-        # do nothing if too few arguments
         if len(arr) < 2:
             print("Invalid command.")
             return
 
         # d number file_name
         if arr[0] == "d":
-            # do nothing if specified disk isn't an integer
             if not arr[1].isdigit():
                 print("Invalid command.")
                 return
-            # do nothing if too few arguments
             if len(arr) < 3:
                 print("Invalid command.")
                 return
@@ -52,7 +41,6 @@ class Interface:
 
         # D number
         elif arr[0] == "D":
-            # do nothing if specified disk isn't an integer
             if not arr[1].isdigit():
                 print("Invalid command.")
                 return
@@ -67,7 +55,6 @@ class Interface:
             page = int(arr[1]) / int(self.page_size)
             self.obj.access_memory(page)
 
-        # error
         else:
             print("Invalid command.")
 
@@ -113,6 +100,7 @@ class Interface:
             self.s = input()
             self.s.strip()
             self.evaluate()
+
 
 def main():
     obj = Interface()
