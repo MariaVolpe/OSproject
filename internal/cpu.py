@@ -80,15 +80,13 @@ class CPU:
     # preempt if process has exceeded time quanta allowed on for its level
     # add process to queue one level below its current priority level
     def preempt(self):
-        # reset time quanta
-        self.__using_CPU.reset_time_quanta()
         process = self.__using_CPU
-        if not self.__using_CPU.level:
-            process.level = 1
+        process.preempt()
+        if process.which_queue() == 1:
             self.__lvl_1_q.appendleft(process)
-        elif self.__using_CPU.level == 1:
-            process.level = 2
+        else:
             self.__lvl_2_q.appendleft(process)
+        
         self.__using_CPU = None
         self.refresh_lvl_0()
 

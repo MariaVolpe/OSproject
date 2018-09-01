@@ -53,3 +53,10 @@ class PCB:
             return True
 
         return False
+
+    def preempt(self):
+        self.reset_time_quanta()
+        self.__level += 1
+    
+    def which_queue(self):
+        return self.__level += 1
