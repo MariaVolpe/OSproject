@@ -77,8 +77,8 @@ class CPU:
     # add process to queue one level below its current priority level
     def preempt(self):
         process = self.__using_CPU
-        process.preempt()
-        self.__level_queues[process.which_queue_post_preempt()].appendleft(process)
+        process.demote()
+        self.__level_queues[process.which_queue].appendleft(process)
 
         self.__using_CPU = None
         self.refresh_lvl_0()
@@ -86,10 +86,7 @@ class CPU:
     # preempt if a higher level process arrives
     # add process to front of it's priority level queue
     def priority_preempt(self):
-        if self.__using_CPU.level == 1:
-            self.__level_queues[1].append(self.__using_CPU)
-        if self.__using_CPU.level == 2:
-            self.__level_queues[2].append(self.__using_CPU)
+        self.__level_queues[self.__using_CPU.which_queue].append(self.__using_CPU)
         self.__using_CPU = None
 
     def terminate(self):
@@ -123,15 +120,9 @@ class CPU:
             return
 
         process = self.__disks[num].terminate_io()
-
         process.reset_time_quanta()
-        # process returned from hdd.terminate_io is put back into ready-queue
-        if process.level == 0:
-            self.__level_queues[0].append(process)
-        elif process.level == 1:
-            self.__level_queues[1].append(process)
-        else:
-            self.__level_queues[2].append(process)
+
+        self.__level_queues[process.which_queue].append(process)
         self.refresh_lvl_0()
 
     # add a specified page to memory

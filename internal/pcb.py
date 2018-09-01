@@ -22,12 +22,8 @@ class PCB:
         return self.__time_quantum
 
     @property
-    def level(self):
+    def which_queue(self):
         return self.__level
-
-    @level.setter
-    def level(self, value):
-        self.__level = value
 
     @property
     def file_name(self):
@@ -54,17 +50,14 @@ class PCB:
         return False
 
     def is_lesser_priority_than(self, queue_level):
-        if self.__using_CPU.level > queue_level:
+        if self.__level > queue_level:
             return True
         return False
 
-    def preempt(self):
+    def demote(self):
         self.reset_time_quanta()
         self.__level += 1
-    
-    def which_queue_post_preempt(self):
-        return self.__level + 1
-    
+
     def print_CPU_process(self):
         print("PID", self.__pid, "from level", self.__level)
 
