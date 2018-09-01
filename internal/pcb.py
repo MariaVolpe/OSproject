@@ -51,7 +51,11 @@ class PCB:
             return True
         elif self.__level == 1 and self.__time_quantum == 2:
             return True
+        return False
 
+    def is_lesser_priority_than(self, queue_level):
+        if self.__using_CPU.level > queue_level:
+            return True
         return False
 
     def preempt(self):
@@ -60,7 +64,7 @@ class PCB:
     
     def which_queue_post_preempt(self):
         return self.__level + 1
-
+    
     def print_CPU_process(self):
         print("PID", self.__pid, "from level", self.__level)
 

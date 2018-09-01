@@ -36,11 +36,11 @@ class CPU:
             self.__using_CPU = self.__level_queues[0].pop()
 
         # if level 0 has a queue and CPU is in use by a lower priority process: preempt
-        elif self.__using_CPU.level > 0 and self.__level_queues[0]:
+        elif self.__level_queues[0] and self.__using_CPU.is_lesser_priority_than(0):
             self.priority_preempt()
             self.__using_CPU = self.__level_queues[0].pop()
 
-        elif self.__using_CPU.level > 1 and self.__level_queues[1]:
+        elif self.__level_queues[1] and self.__using_CPU.is_lesser_priority_than(1):
             self.priority_preempt()
             self.__using_CPU = self.__level_queues[1].pop()
 
