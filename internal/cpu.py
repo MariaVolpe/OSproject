@@ -105,24 +105,24 @@ class CPU:
         if not self.__using_CPU:
             print("Cannot request I/O. CPU is idle.")
             return
-        elif int(num) >= self.__disk_count:
+        elif num >= self.__disk_count:
             print("Specified disk number does not exist.")
             return
 
-        self.__disks[int(num)].request_io(file_name, self.__using_CPU)
+        self.__disks[num].request_io(file_name, self.__using_CPU)
 
         self.__using_CPU = None
         self.refresh_lvl_0()
 
     def terminate_io(self, num):
-        if int(num) >= self.__disk_count:
+        if num >= self.__disk_count:
             print("Specified disk number does not exist.")
             return
-        elif not self.__disks[int(num)].using_HDD:
+        elif not self.__disks[num].using_HDD:
             print("Cannot terminate I/O usage for disk {}. Disk is idle.".format(num))
             return
 
-        process = self.__disks[int(num)].terminate_io()
+        process = self.__disks[num].terminate_io()
 
         process.reset_time_quanta()
         # process returned from hdd.terminate_io is put back into ready-queue

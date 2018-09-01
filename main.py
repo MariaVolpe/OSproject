@@ -37,14 +37,14 @@ class Interface:
                 print("Invalid command.")
                 return
 
-            self.obj.request_io(arr[1], arr[2])
+            self.obj.request_io(int(arr[1]), arr[2])
 
         # D number
         elif arr[0] == "D":
             if not arr[1].isdigit():
                 print("Invalid command.")
                 return
-            self.obj.terminate_io(arr[1])
+            self.obj.terminate_io(int(arr[1]))
 
         # m address
         elif arr[0] == "m":
