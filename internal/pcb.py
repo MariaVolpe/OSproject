@@ -66,3 +66,6 @@ class PCB:
 
     def print(self):
         print("PID", self.__pid)
+
+    def print_disk(self, message):
+        print("PID", self.__pid, message, "\"" + self.__file_name + "\"")

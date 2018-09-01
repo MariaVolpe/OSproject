@@ -168,19 +168,9 @@ class CPU:
     # The enumeration of hard disks starts from 0."
     def show_disk(self):
         print ("")
-        for i in range(self.__disks[0].hdd_count):
+        for i, disk in enumerate(self.__disks):
             print("Hard Disk {}:".format(i))
-            print("Using disk:")
-            if self.__disks[i].using_HDD:
-                print("PID", self.__disks[i].using_HDD.pid, "is using", "\"" +
-                      self.__disks[i].using_HDD.file_name + "\"")
-            else:
-                print("[idle]")
-            print("In I/O queue:")
-            for j in self.__disks[i].io_queue:
-                print("PID", j.pid, "wants to use", "\"" + j.file_name + "\"")
-            if not self.__disks[i].io_queue:
-                print ("[empty]")
+            disk.print()
             print ("")
 
     # "Shows the state of memory. For each used frame display the process number that

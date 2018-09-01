@@ -31,7 +31,6 @@ class HDD:
         if not self.__using_HDD:
             self.__using_HDD = process
             self.__file_name = new_file
-            print(self.__file_name)
         else:
             self.__io_queue.append(process)
 
@@ -50,3 +49,17 @@ class HDD:
         else:
             self.__using_HDD = self.__io_queue.popleft()
             self.__file_name = self.__using_HDD.file_name
+
+    def print(self):
+        print("Using disk:")
+        if self.__using_HDD:
+            message = "is using"
+            self.__using_HDD.print_disk(message)
+        else:
+            print("[idle]")
+        print("In I/O queue:")
+        for j in self.__io_queue:
+            message = "wants to use"
+            j.print_disk(message)
+        if not self.__io_queue:
+            print ("[empty]")
