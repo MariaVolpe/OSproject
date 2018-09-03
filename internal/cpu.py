@@ -9,10 +9,9 @@ class CPU:
 
     def __init__(self, disk_count, frame_count):
         self.__level_queues = [deque() for i in range(3)]
-        self.__frame_count = frame_count
         self.__disks = []
         self.__disk_count = disk_count
-        self.__memory = memory.Mem(int(frame_count))
+        self.__memory = memory.Mem(frame_count)
 
         for i in range(disk_count):
             disk = hdd.HDD()
@@ -34,14 +33,11 @@ class CPU:
         elif not self.__using_CPU:
             self.__using_CPU = self.__level_queues[0].pop()
 
-        # if level 0 has a queue and CPU is in use by a lower priority process: preempt
-        elif self.__level_queues[0] and self.__using_CPU.is_lesser_priority_than(0):
-            self.priority_preempt()
-            self.__using_CPU = self.__level_queues[0].pop()
-
-        elif self.__level_queues[1] and self.__using_CPU.is_lesser_priority_than(1):
-            self.priority_preempt()
-            self.__using_CPU = self.__level_queues[1].pop()
+        for level in range(2):
+            if self.should_priority_preempt(level):
+                self.priority_preempt()
+                self.__using_CPU = self.__level_queues[level].pop()
+                break
 
     def refresh_lvl_1(self):
         if self.__using_CPU and self.__level_queues[0]:
@@ -63,11 +59,9 @@ class CPU:
             return
 
         self.__using_CPU.increment_time_quantum()
-        if self.__using_CPU.should_preempt():
+        if self.__using_CPU.has_exceeded_time_quantums:
             self.preempt()
 
-    # preempt if process has exceeded time quanta allowed on for its level
-    # add process to queue one level below its current priority level
     def preempt(self):
         process = self.__using_CPU
         process.demote()
@@ -76,13 +70,11 @@ class CPU:
         self.__using_CPU = None
         self.refresh_lvl_0()
 
-    # preempt if a higher level process arrives
-    # add process to front of it's priority level queue
     def priority_preempt(self):
         self.__level_queues[self.__using_CPU.which_queue].append(self.__using_CPU)
         self.__using_CPU = None
 
-    def terminate(self):
+    def terminate_process(self):
         if not self.__using_CPU:
             print("Can't terminate. CPU is idle.")
             return
@@ -111,6 +103,7 @@ class CPU:
         process = self.__disks[num].terminate_io()
         if not process:
             print("Cannot terminate I/O usage for disk {}. Disk is idle.".format(num))
+            return
         
         process.reset_time_quanta()
 
@@ -123,6 +116,11 @@ class CPU:
             return
 
         self.__memory.add_to_memory(page, self.__using_CPU)
+
+    def should_priority_preempt(level):
+        if (self.__level_queues[level] and self.__using_CPU.is_lesser_priority_than(level)):
+            return True
+        return False
 
     # "Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
     def show_cpu(self):

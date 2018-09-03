@@ -21,6 +21,14 @@ class PCB:
     def file_name(self):
         return self.__file_name
 
+    @property
+    def has_exceeded_time_quantums(self):
+        if self.__level == 0:
+            return True
+        elif self.__level == 1 and self.__time_quantum == 2:
+            return True
+        return False
+
     @file_name.setter
     def file_name(self, name):
         self.__file_name = name
@@ -37,13 +45,6 @@ class PCB:
     def demote(self):
         self.reset_time_quanta()
         self.__level += 1
-
-    def should_preempt(self):
-        if self.__level == 0:
-            return True
-        elif self.__level == 1 and self.__time_quantum == 2:
-            return True
-        return False
 
     def is_lesser_priority_than(self, queue_level):
         if self.__level > queue_level:

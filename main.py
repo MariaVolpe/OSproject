@@ -8,7 +8,7 @@ class Interface:
         self.s = ""
         self.obj = self.begin()
         # build list of commands user can input
-        self.commands = {"A": self.obj.add_process, "Q": self.obj.time_quantum, "t": self.obj.terminate,
+        self.commands = {"A": self.obj.add_process, "Q": self.obj.time_quantum, "t": self.obj.terminate_process,
                          "S r": self.obj.show_cpu, "S i": self.obj.show_disk, "S m": self.obj.show_memory}
 
     def evaluate(self):
@@ -92,7 +92,7 @@ class Interface:
         frame_count = int(ram) / int(self.page_size)
 
         # object of class CPU
-        self.obj = cpu.CPU(int(disk_count), frame_count)
+        self.obj = cpu.CPU(int(disk_count), int(frame_count))
         return self.obj
 
     def run(self):
