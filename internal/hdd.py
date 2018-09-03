@@ -16,19 +16,19 @@ class HDD:
         else:
             self.__io_queue.append(process)
 
-    # stop process from using HDD, refresh I/O queue and then return the process
-    # only is called from CPU class if there is a process currently using the disk
     def terminate_io(self):
         if not self.__using_HDD:
             return None
 
         process = self.__using_HDD
         process.file_name = ""
+
         self.__using_HDD = None
-        self.refresh_io()
+        self.manage_disk()
+
         return process
 
-    def refresh_io(self):
+    def manage_disk(self):
         if not self.__io_queue:
             self.__using_HDD = None
         else:

@@ -58,7 +58,7 @@ class Interface:
                 return
             # page number = address/page size
             page = int(arr[1]) / int(self.__page_size)
-            self.__cpu.add_to_memory(page)
+            self.__cpu.add_to_memory(int(page))
 
         else:
             print("Invalid command.")
