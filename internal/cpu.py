@@ -20,7 +20,7 @@ class CPU:
     def add_process(self):
         process = pcb.PCB()
         
-        self.__memory.add_to_memory(0, process.pid)
+        self.__memory.add_to_memory(0, process)
         self.__level_queues[0].appendleft(process)
         self.refresh_lvl_0()
 
@@ -53,13 +53,13 @@ class CPU:
         elif self.__level_queues[2]:
             self.__using_CPU = self.__level_queues[2].pop()
 
-    def time_quantum(self):
+    def increment_time_quanta(self):
         if not self.__using_CPU:
-            print("Can't increase time quantum. CPU is idle.")
+            print("Can't increase time quanta. CPU is idle.")
             return
 
-        self.__using_CPU.increment_time_quantum()
-        if self.__using_CPU.has_exceeded_time_quantums:
+        self.__using_CPU.increment_time_quanta()
+        if self.__using_CPU.has_exceeded_time_quanta:
             self.preempt()
 
     def preempt(self):
@@ -117,12 +117,11 @@ class CPU:
 
         self.__memory.add_to_memory(page, self.__using_CPU)
 
-    def should_priority_preempt(level):
+    def should_priority_preempt(self, level):
         if (self.__level_queues[level] and self.__using_CPU.is_lesser_priority_than(level)):
             return True
         return False
 
-    # "Shows what process is currently using the CPU and what processes are waiting in the ready-queue. "
     def show_cpu(self):
         print ("")
         print("Using CPU:")
@@ -142,10 +141,6 @@ class CPU:
 
         print ("")
 
-    # "Shows what processes are currently using the hard disks and what processes are waiting to use them.
-    # For each busy hard disk show the process that uses it and show its I/O-queue.
-    # Make sure to display the file names (from the d command) for each process.
-    # The enumeration of hard disks starts from 0."
     def show_disk(self):
         print ("")
         for i, disk in enumerate(self.__disks):
@@ -153,8 +148,5 @@ class CPU:
             disk.print()
             print ("")
 
-    # "Shows the state of memory. For each used frame display the process number that
-    # occupies it and the page number stored in it.
-    # The enumeration of pages and frames starts from 0.""
     def show_memory(self):
         self.__memory.show_memory()

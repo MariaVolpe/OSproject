@@ -4,25 +4,30 @@ from internal import cpu
 class Interface:
 
     def __init__(self):
-        self.page_size = ""
-        self.s = ""
-        self.obj = self.begin()
-        # build list of commands user can input
-        self.commands = {"A": self.obj.add_process, "Q": self.obj.time_quantum, "t": self.obj.terminate_process,
-                         "S r": self.obj.show_cpu, "S i": self.obj.show_disk, "S m": self.obj.show_memory}
+        self.__page_size = ""
+        self.__input = ""
+        self.__cpu = self.initialize()
+        self.__commands = {
+            "A": self.__cpu.add_process,
+            "Q": self.__cpu.increment_time_quanta,
+            "t": self.__cpu.terminate_process,
+            "S r": self.__cpu.show_cpu,
+            "S i": self.__cpu.show_disk,
+            "S m": self.__cpu.show_memory,
+        }
 
     def evaluate(self):
-        if self.s == "":
+        if self.__input == "":
             return
-        if self.s == "Quit" or self.s == "quit":
+        if self.__input == "Quit" or self.__input == "quit":
             exit()
 
         # check if user input is in dict of commands and call the command
         # if not call special_action
-        self.commands.get(self.s, self.special_action)()
+        self.__commands.get(self.__input, self.special_action)()
 
     def special_action(self):
-        arr = self.s.split()
+        arr = self.__input.split()
 
         if len(arr) < 2:
             print("Invalid command.")
@@ -37,14 +42,14 @@ class Interface:
                 print("Invalid command.")
                 return
 
-            self.obj.request_io(int(arr[1]), arr[2])
+            self.__cpu.request_io(int(arr[1]), arr[2])
 
         # D number
         elif arr[0] == "D":
             if not arr[1].isdigit():
                 print("Invalid command.")
                 return
-            self.obj.terminate_io(int(arr[1]))
+            self.__cpu.terminate_io(int(arr[1]))
 
         # m address
         elif arr[0] == "m":
@@ -52,13 +57,13 @@ class Interface:
                 print("Invalid command.")
                 return
             # page number = address/page size
-            page = int(arr[1]) / int(self.page_size)
-            self.obj.add_to_memory(page)
+            page = int(arr[1]) / int(self.__page_size)
+            self.__cpu.add_to_memory(page)
 
         else:
             print("Invalid command.")
 
-    def begin(self):
+    def initialize(self):
         flag = True
         while flag:
             ram = input("How much RAM? ")
@@ -67,15 +72,15 @@ class Interface:
                 print ("Not a valid value for RAM.")
                 ram = input("How much RAM? ")
 
-            self.page_size = input("Size of page? ")
+            self.__page_size = input("Size of page? ")
 
-            while not self.page_size.isdigit():
+            while not self.__page_size.isdigit():
                 print ("Not a valid value for page size.")
-                self.page_size = input("Size of page? ")
+                self.__page_size = input("Size of page? ")
 
                 print ("Not a valid value for page size.")
 
-            if int(ram) % int(self.page_size) == 0:
+            if int(ram) % int(self.__page_size) == 0:
                 flag = False
             else:
                 print ("Not valid values for RAM and page size.")
@@ -89,22 +94,21 @@ class Interface:
 
         print ("")
         # frame number = ram/page size
-        frame_count = int(ram) / int(self.page_size)
+        frame_count = int(ram) / int(self.__page_size)
 
-        # object of class CPU
-        self.obj = cpu.CPU(int(disk_count), int(frame_count))
-        return self.obj
+        self.__cpu = cpu.CPU(int(disk_count), int(frame_count))
+        return self.__cpu
 
     def run(self):
         while True:
-            self.s = input()
-            self.s.strip()
+            self.__input = input()
+            self.__input.strip()
             self.evaluate()
 
 
 def main():
-    obj = Interface()
-    obj.run()
+    interface = Interface()
+    interface.run()
 
 
 if __name__ == "__main__":

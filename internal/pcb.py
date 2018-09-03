@@ -5,7 +5,7 @@ class PCB:
     def __init__(self):
         self.__pid = PCB.__pid_count
         PCB.__pid_count += 1
-        self.__time_quantum = 0
+        self.__time_quanta = 0
         self.__level = 0
         self.__file_name = ""
 
@@ -22,10 +22,10 @@ class PCB:
         return self.__file_name
 
     @property
-    def has_exceeded_time_quantums(self):
+    def has_exceeded_time_quanta(self):
         if self.__level == 0:
             return True
-        elif self.__level == 1 and self.__time_quantum == 2:
+        elif self.__level == 1 and self.__time_quanta >= 2:
             return True
         return False
 
@@ -33,14 +33,14 @@ class PCB:
     def file_name(self, name):
         self.__file_name = name
 
-    def increment_time_quantum(self):
+    def increment_time_quanta(self):
         if self.__level == 2:
-            print("Increasing time quantum has no effect. Process in CPU belongs to level 2.")
+            print("Increasing time quanta has no effect. Process in CPU belongs to level 2.")
             return
-        self.__time_quantum += 1
+        self.__time_quanta += 1
 
     def reset_time_quanta(self):
-        self.__time_quantum = 0
+        self.__time_quanta = 0
 
     def demote(self):
         self.reset_time_quanta()
