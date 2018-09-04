@@ -22,34 +22,23 @@ class CPU:
         
         self.__memory.add_to_memory(0, process)
         self.__level_queues[0].appendleft(process)
-        self.refresh_lvl_0()
+        self.enforce_order()
 
-    def refresh_lvl_0(self):
-        # if CPU is idle and there are no processes queued on level 0
-        if not self.__using_CPU and not self.__level_queues[0]:
-            self.refresh_lvl_1()
-
-        # if CPU is idle let in a process from level 0
-        elif not self.__using_CPU:
-            self.__using_CPU = self.__level_queues[0].pop()
-
+    def enforce_order(self):
+        if not self.__using_CPU:
+            self.execute_highest_priority_process()
+        
         for level in range(2):
             if self.should_priority_preempt(level):
                 self.priority_preempt()
                 self.__using_CPU = self.__level_queues[level].pop()
                 break
 
-    def refresh_lvl_1(self):
-        if self.__using_CPU and self.__level_queues[0]:
-            return
+    def execute_highest_priority_process(self):
+        if self.__level_queues[0]:
+            self.__using_CPU = self.__level_queues[0].pop()
         elif self.__level_queues[1]:
             self.__using_CPU = self.__level_queues[1].pop()
-        elif not self.__level_queues[1]:
-            self.refresh_lvl_2()
-
-    def refresh_lvl_2(self):
-        if self.__using_CPU and self.__level_queues[0] and self.__level_queues[1]:
-            return
         elif self.__level_queues[2]:
             self.__using_CPU = self.__level_queues[2].pop()
 
@@ -68,7 +57,7 @@ class CPU:
         self.__level_queues[process.which_queue].appendleft(process)
 
         self.__using_CPU = None
-        self.refresh_lvl_0()
+        self.enforce_order()
 
     def priority_preempt(self):
         self.__level_queues[self.__using_CPU.which_queue].append(self.__using_CPU)
@@ -81,7 +70,7 @@ class CPU:
 
         self.__memory.reclaim_memory(self.__using_CPU.pid)
         self.__using_CPU = None
-        self.refresh_lvl_0()
+        self.enforce_order()
 
     def request_io(self, num, file_name):
         if not self.__using_CPU:
@@ -94,7 +83,7 @@ class CPU:
         self.__disks[num].request_io(file_name, self.__using_CPU)
 
         self.__using_CPU = None
-        self.refresh_lvl_0()
+        self.enforce_order()
 
     def terminate_io(self, num):
         if num >= self.__disk_count:
@@ -108,7 +97,7 @@ class CPU:
         process.reset_time_quanta()
 
         self.__level_queues[process.which_queue].append(process)
-        self.refresh_lvl_0()
+        self.enforce_order()
 
     def add_to_memory(self, page):
         if not self.__using_CPU:
