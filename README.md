@@ -11,7 +11,7 @@ Built for CSCI 340: Operating Systems.
 ---
 ### Run Instructions
 ---
-With Python version 3.5 or above installed, run
+With Python version 3.6 or above installed, run
 
 ```$ python3 main.py```
 

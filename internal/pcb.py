@@ -52,10 +52,10 @@ class PCB:
         return False
 
     def print(self):
-        print("PID", self.__pid)
+        print(f"PID {self.__pid}")
 
     def print_CPU_process(self):
-        print("PID", self.__pid, "from level", self.__level)
+        print(f"PID {self.__pid} from level {self.__level})
 
     def print_disk_process(self, message):
-        print("PID", self.__pid, message, "\"" + self.__file_name + "\"")
+        print(f"PID {self.__pid} {message} \"{self.__file_name}\"")

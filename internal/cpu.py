@@ -91,7 +91,7 @@ class CPU:
             return
         process = self.__disks[num].terminate_io()
         if not process:
-            print("Cannot terminate I/O usage for disk {}. Disk is idle.".format(num))
+            print(f"Cannot terminate I/O usage for disk {num}. Disk is idle.")
             return
         
         process.reset_time_quanta()
@@ -107,7 +107,7 @@ class CPU:
         self.__memory.add_to_memory(page, self.__using_CPU)
 
     def should_priority_preempt(self, level):
-        if (self.__level_queues[level] and self.__using_CPU.is_lesser_priority_than(level)):
+        if self.__level_queues[level] and self.__using_CPU.is_lesser_priority_than(level):
             return True
         return False
 
@@ -121,7 +121,7 @@ class CPU:
 
         print("\nIn ready-queue: ")
         for i, queue in enumerate(self.__level_queues):
-            print("Level {}:".format(i))
+            print(f"Level {i}:")
             if not queue:
                 print("[empty]")
             else:
@@ -133,7 +133,7 @@ class CPU:
     def show_disk(self):
         print ("")
         for i, disk in enumerate(self.__disks):
-            print("Hard Disk {}:".format(i))
+            print(f"Hard Disk {i}:")
             disk.print()
             print ("")
 
