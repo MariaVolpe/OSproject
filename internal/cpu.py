@@ -35,12 +35,10 @@ class CPU:
                 break
 
     def execute_highest_priority_process(self):
-        if self.__level_queues[0]:
-            self.__using_CPU = self.__level_queues[0].pop()
-        elif self.__level_queues[1]:
-            self.__using_CPU = self.__level_queues[1].pop()
-        elif self.__level_queues[2]:
-            self.__using_CPU = self.__level_queues[2].pop()
+        for i in range(3):
+            if self.__level_queues[0]:
+                self.__using_CPU = self.__level_queues[0].pop()
+                return
 
     def increment_time_quanta(self):
         if not self.__using_CPU:
@@ -107,7 +105,8 @@ class CPU:
         self.__memory.add_to_memory(page, self.__using_CPU)
 
     def should_priority_preempt(self, level):
-        if self.__level_queues[level] and self.__using_CPU.is_lesser_priority_than(level):
+        if (self.__level_queues[level]
+                and self.__using_CPU.is_lesser_priority_than(level)):
             return True
         return False
 
