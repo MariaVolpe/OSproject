@@ -6,13 +6,11 @@ class HDD:
     def __init__(self):
         self.__io_queue = deque()
         self.__using_HDD = None
-        self.__file_name = ""
 
     def request_io(self, new_file, process):
         process.file_name = new_file
         if not self.__using_HDD:
             self.__using_HDD = process
-            self.__file_name = new_file
         else:
             self.__io_queue.append(process)
 
@@ -33,7 +31,6 @@ class HDD:
             self.__using_HDD = None
         else:
             self.__using_HDD = self.__io_queue.popleft()
-            self.__file_name = self.__using_HDD.file_name
 
     def print(self):
         print("Using disk:")
