@@ -36,8 +36,8 @@ class CPU:
 
     def execute_highest_priority_process(self):
         for i in range(3):
-            if self.__level_queues[0]:
-                self.__using_CPU = self.__level_queues[0].pop()
+            if self.__level_queues[i]:
+                self.__using_CPU = self.__level_queues[i].pop()
                 return
 
     def increment_time_quanta(self):
@@ -88,6 +88,7 @@ class CPU:
             print("Specified disk number does not exist.")
             return
         process = self.__disks[num].terminate_io()
+
         if not process:
             print(f"Cannot terminate I/O usage for disk {num}. Disk is idle.")
             return
