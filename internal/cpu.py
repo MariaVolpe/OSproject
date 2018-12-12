@@ -24,21 +24,14 @@ class CPU:
         self.__level_queues[0].appendleft(process)
         self.enforce_order()
 
-    def enforce_order(self):
+    def terminate_process(self):
         if not self.__using_CPU:
-            self.execute_highest_priority_process()
-        
-        for level in range(2):
-            if self.should_priority_preempt(level):
-                self.priority_preempt()
-                self.__using_CPU = self.__level_queues[level].pop()
-                break
+            print("Can't terminate. CPU is idle.")
+            return
 
-    def execute_highest_priority_process(self):
-        for i in range(3):
-            if self.__level_queues[i]:
-                self.__using_CPU = self.__level_queues[i].pop()
-                return
+        self.__memory.reclaim_memory(self.__using_CPU.pid)
+        self.__using_CPU = None
+        self.enforce_order()
 
     def increment_time_quanta(self):
         if not self.__using_CPU:
@@ -48,27 +41,6 @@ class CPU:
         self.__using_CPU.increment_time_quanta()
         if self.__using_CPU.has_exceeded_time_quanta:
             self.preempt()
-
-    def preempt(self):
-        process = self.__using_CPU
-        process.demote()
-        self.__level_queues[process.which_queue].appendleft(process)
-
-        self.__using_CPU = None
-        self.enforce_order()
-
-    def priority_preempt(self):
-        self.__level_queues[self.__using_CPU.which_queue].append(self.__using_CPU)
-        self.__using_CPU = None
-
-    def terminate_process(self):
-        if not self.__using_CPU:
-            print("Can't terminate. CPU is idle.")
-            return
-
-        self.__memory.reclaim_memory(self.__using_CPU.pid)
-        self.__using_CPU = None
-        self.enforce_order()
 
     def request_io(self, num, file_name):
         if not self.__using_CPU:
@@ -98,18 +70,46 @@ class CPU:
         self.__level_queues[process.which_queue].append(process)
         self.enforce_order()
 
-    def add_to_memory(self, page):
+    def enforce_order(self):
         if not self.__using_CPU:
-            print ("Cannot access memory for process using CPU. CPU is idle.")
-            return
+            self.execute_highest_priority_process()
+        
+        for level in range(2):
+            if self.should_priority_preempt(level):
+                self.priority_preempt()
+                self.__using_CPU = self.__level_queues[level].pop()
+                break
 
-        self.__memory.add_to_memory(page, self.__using_CPU)
+    def preempt(self):
+        process = self.__using_CPU
+        process.demote()
+        self.__level_queues[process.which_queue].appendleft(process)
+
+        self.__using_CPU = None
+        self.enforce_order()
+
+    def priority_preempt(self):
+        self.__level_queues[self.__using_CPU.which_queue].append(self.__using_CPU)
+        self.__using_CPU = None
 
     def should_priority_preempt(self, level):
         if (self.__level_queues[level]
                 and self.__using_CPU.is_lesser_priority_than(level)):
             return True
         return False
+
+    def execute_highest_priority_process(self):
+        for i in range(3):
+            if self.__level_queues[i]:
+                self.__using_CPU = self.__level_queues[i].pop()
+                return
+
+    def add_to_memory(self, page):
+        if not self.__using_CPU:
+            print ("Cannot access memory for process using CPU. CPU is idle.")
+            return
+
+        self.__memory.add_to_memory(page, self.__using_CPU)
 
     def show_cpu(self):
         print ("")
