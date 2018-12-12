@@ -35,11 +35,9 @@ class Interface:
 
         # d number file_name
         if arr[0] == "d":
-            if not arr[1].isdigit():
+            if not arr[1].isdigit() or len(arr) < 3:
                 print("Invalid command.")
-                return
-            if len(arr) < 3:
-                print("Invalid command.")
+                print("Disk usage: d disk_number file_name")
                 return
 
             self.__cpu.request_io(int(arr[1]), arr[2])
@@ -48,6 +46,7 @@ class Interface:
         elif arr[0] == "D":
             if not arr[1].isdigit():
                 print("Invalid command.")
+                print("Disk termination usage: D disk_number")
                 return
             self.__cpu.terminate_io(int(arr[1]))
 
