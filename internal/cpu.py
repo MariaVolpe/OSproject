@@ -5,9 +5,9 @@ from internal import memory
 
 
 class CPU:
-    __using_CPU = None
 
     def __init__(self, disk_count, frame_count):
+        self.__using_CPU = None        
         self.__level_queues = [deque() for i in range(3)]
         self.__disks = []
         self.__disk_count = disk_count
