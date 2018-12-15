@@ -4,14 +4,14 @@
 ---
 Simulation of a single core operating system with a variable number of hard disks. Issue commands via the command line to create and manage activity of processes to observe the behavior of the CPU and disk scheduling algorithms.
 
-Written in Python 3.5.
+Written in Python 3.6.
 
 Built for CSCI 340: Operating Systems.
 
 ---
 ### Run Instructions
 ---
-With Python version 3.5 or above installed, run
+With Python version 3.6 or above installed, run
 
 ```$ python3 main.py```
 
@@ -38,19 +38,19 @@ S i  -  Show what processes are using each disk and what processes are in the I/
 S m  -  Show the memory table.
 
 
-If command has multiple parts, enter separated by spaces (ie. "d 0 file.txt").
+If command has multiple parts, enter separated by spaces ("d 0 file.txt").
 
 Disks are enumerated starting at 0.
 
 ---
 ### CPU Scheduling Algorithm
 ---
-Multilevel ready queue with 3 levels, enumerated from 0. The 0th level is round robin where a process is allowed 1 time quantum in the CPU before it is demoted a level, and on the 1st level it is allowed 2 time quantums. The 2nd level is First Come First Serve. There is no way for a process to be promoted up a priority level in this simulation.
+Multilevel ready queue with 3 levels, enumerated from 0. The 0th level is Round Robin, for which a process is allowed 1 time quantum in the CPU before it is demoted a level, and on the 1st level it is allowed 2 time quanta. The 2nd level is First Come First Served. There is no way for a process to be promoted up a priority level in this simulation.
 
 ---
 ### Disk Scheduling Algorithm
 ---
-First Come First Serve. All processes have the same priority.
+First Come First Served. All processes have the same priority.
 
 ---
 ### Error Checking

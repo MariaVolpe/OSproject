@@ -9,8 +9,12 @@ class Mem:
         pid_list = []
         timestamp_list = []
 
-        self.__table = {"Frames": frame_list, "Page Number": page_list,
-                        "PID": pid_list, "Timestamp": timestamp_list}
+        self.__table = {
+            "Frames": frame_list,
+            "Page Number": page_list,
+            "PID": pid_list,
+            "Timestamp": timestamp_list
+        }
 
         # initialize all values
         # frame list is enumerated, 0 to frame_count
@@ -24,12 +28,13 @@ class Mem:
 
     # add the information to frame with smallest timestamp (the least recently used)
     # if any memory is unused it will be placed in the first unused frame because 0 will be least recently used
-    def add_to_memory(self, page, pid):
+    def add_to_memory(self, page, process):
+        pid = process.pid
         # if page already belongs to process
         if pid in self.__table["PID"]:
             for i, val in enumerate(self.__table["PID"]):
                 if self.__table["PID"][i] == pid:
-                    if self.__table["Page Number"][i] == int(page):
+                    if self.__table["Page Number"][i] == page:
                         self.update_timestamp(i)
                         return
 
@@ -44,15 +49,13 @@ class Mem:
         self.__table["Timestamp"][min_index] = self.__timestamp
         # increase timestamp
         self.__timestamp += 1
-        self.__table["Page Number"][min_index] = int(page)
+        self.__table["Page Number"][min_index] = page
         self.__table["PID"][min_index] = pid
 
-    # if page already belongs to process, update timestamp
     def update_timestamp(self, index):
         self.__table["Timestamp"][index] = self.__timestamp
         self.__timestamp += 1
 
-    # reclaim memory for a terminated process
     def reclaim_memory(self, pid):
         # check for pid in list of pids and reset values associated with it
         for i, val in enumerate(self.__table["PID"]):
@@ -61,20 +64,17 @@ class Mem:
                 self.__table["Page Number"][i] = -1
                 self.__table["PID"][i] = -1
 
-    # "Shows the state of memory. For each used frame display the process number that
-    # occupies it and the page number stored in it.
-    # The enumeration of pages and frames starts from 0.""
     def show_memory(self):
-        is_empty = False
+        is_empty = True
         print ("")
         for i, val in enumerate(self.__table["Frames"]):
             if self.__table["PID"][i] != -1:
-                is_empty = True
+                is_empty = False
                 print ("Frame: ", self.__table["Frames"][i], "\t", "Page: ",
                        self.__table["Page Number"][i], "\t", "PID: ",
                        self.__table["PID"][i], "\t", "Timestamp: ", self.__table["Timestamp"][i])
 
-        if not is_empty:
+        if is_empty:
             print ("No frames in use to show.")
 
         print ("")
